@@ -532,7 +532,11 @@ namespace SevenZip
         /// </summary>
         /// <param name="commonRootLength">The length of the common root of the file names.</param>
         /// <param name="files">Array of file names</param>
+        #if NET40
+        private static void CheckCommonRoot(IList<string> files, ref int commonRootLength)
+#else
         private static void CheckCommonRoot(IReadOnlyList<string> files, ref int commonRootLength)
+#endif
         {
             string commonRoot;
 
@@ -594,8 +598,14 @@ namespace SevenZip
         /// <param name="directoryStructure">Preserve directory structure.</param>
         /// <returns>Special FileInfo array for the archive file table.</returns>
         private static FileInfo[] ProduceFileInfoArray(
-            IReadOnlyList<string> files, int commonRootLength,
-            bool directoryCompress, bool directoryStructure)
+#if NET40
+            IList<string> files,
+#else
+            IReadOnlyList<string> files,
+#endif
+            int commonRootLength,
+            bool directoryCompress, 
+            bool directoryStructure)
         {
             var fis = new List<FileInfo>(files.Count);
             var commonRoot = files[0].Substring(0, commonRootLength);
@@ -704,7 +714,7 @@ namespace SevenZip
             }
         }
 
-        #endregion
+#endregion
 
         #region GetArchiveUpdateCallback overloads
 

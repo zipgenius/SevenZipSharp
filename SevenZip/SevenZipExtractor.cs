@@ -107,7 +107,7 @@ namespace SevenZip
             SevenZipLibraryManager.LoadLibrary(this, _format);
             try
             {
-                _inStream = new ArchiveEmulationStreamProxy(stream, _offset);
+                //_inStream = new ArchiveEmulationStreamProxy(stream, _offset);
 				_packedSize = stream.Length;
                 _archive = SevenZipLibraryManager.InArchive(_format, this);
             }
@@ -124,7 +124,7 @@ namespace SevenZip
                     _format = InArchiveFormat.PE;
                     try
                     {
-                        _inStream = new ArchiveEmulationStreamProxy(stream, _offset);
+                        //_inStream = new ArchiveEmulationStreamProxy(stream, _offset);
                         _packedSize = stream.Length;
                         _archive = SevenZipLibraryManager.InArchive(_format, this);
                     }
@@ -386,9 +386,7 @@ namespace SevenZip
                 if (!_fileName.EndsWith(".001", StringComparison.OrdinalIgnoreCase))
                 {
                     _archiveStream = new InStreamWrapper(
-                        new ArchiveEmulationStreamProxy(new FileStream(
-                            _fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
-                            _offset),
+                        null,
                         dispose);
                 }
                 else

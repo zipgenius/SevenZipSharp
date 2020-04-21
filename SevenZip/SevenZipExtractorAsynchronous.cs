@@ -103,7 +103,13 @@
         public void BeginExtractArchive(string directory)
         {
             SaveContext();
-            Task.Run(() => new ExtractArchiveDelegate(ExtractArchive).Invoke(directory))
+
+#if NET40
+            Task.Factory.StartNew(
+#else
+            Task.Run(
+#endif
+                    () => new ExtractArchiveDelegate(ExtractArchive).Invoke(directory))
                 .ContinueWith(_ => ReleaseContext());
         }
 
@@ -115,7 +121,13 @@
         public void BeginExtractFile(string fileName, Stream stream)
         {
             SaveContext();
-            Task.Run(() => new ExtractFileByFileNameDelegate(ExtractFile).Invoke(fileName, stream))
+
+#if NET40
+            Task.Factory.StartNew(
+#else
+            Task.Run(
+#endif
+                    () => new ExtractFileByFileNameDelegate(ExtractFile).Invoke(fileName, stream))
                 .ContinueWith(_ => ReleaseContext());
         }
 
@@ -127,7 +139,13 @@
         public void BeginExtractFile(int index, Stream stream)
         {
             SaveContext();
-            Task.Run(() => new ExtractFileByIndexDelegate(ExtractFile).Invoke(index, stream))
+
+#if NET40
+            Task.Factory.StartNew(
+#else
+            Task.Run(
+#endif
+                    () => new ExtractFileByIndexDelegate(ExtractFile).Invoke(index, stream))
                 .ContinueWith(_ => ReleaseContext());
         }
 
@@ -139,7 +157,13 @@
         public void BeginExtractFiles(string directory, params int[] indexes)
         {
             SaveContext();
-            Task.Run(() => new ExtractFiles1Delegate(ExtractFiles).Invoke(directory, indexes))
+
+#if NET40
+            Task.Factory.StartNew(
+#else
+            Task.Run(
+#endif
+                    () => new ExtractFiles1Delegate(ExtractFiles).Invoke(directory, indexes))
                 .ContinueWith(_ => ReleaseContext());
         }
 
@@ -151,7 +175,13 @@
         public void BeginExtractFiles(string directory, params string[] fileNames)
         {
             SaveContext();
-            Task.Run(() => new ExtractFiles2Delegate(ExtractFiles).Invoke(directory, fileNames))
+
+#if NET40
+            Task.Factory.StartNew(
+#else
+            Task.Run(
+#endif
+                    () => new ExtractFiles2Delegate(ExtractFiles).Invoke(directory, fileNames))
                 .ContinueWith(_ => ReleaseContext());
         }
 
@@ -164,7 +194,13 @@
         public void BeginExtractFiles(ExtractFileCallback extractFileCallback)
         {
             SaveContext();
-            Task.Run(() => new ExtractFiles3Delegate(ExtractFiles).Invoke(extractFileCallback))
+
+#if NET40
+            Task.Factory.StartNew(
+#else
+            Task.Run(
+#endif
+                    () => new ExtractFiles3Delegate(ExtractFiles).Invoke(extractFileCallback))
                 .ContinueWith(_ => ReleaseContext());
         }
     }
