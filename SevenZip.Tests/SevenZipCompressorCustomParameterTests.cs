@@ -107,16 +107,12 @@
                 CompressionMethod = CompressionMethod.BZip2
             };
 
-            compressor.CustomParameters.Add("d", "900000");
+            compressor.CustomParameters.Add("d", "1048576b");
+            compressor.CompressFiles(TemporaryFile, @"TestData\zip.zip");
 
-            try
-            {
-                compressor.CompressFiles(TemporaryFile, @"TestData\zip.zip");
-            }
-            catch (ArgumentException)
-            {
-                Assert.Warn("Known issue, see GitHub issue https://github.com/squid-box/SevenZipSharp/issues/86");
-            }
+            compressor.CustomParameters.Remove("d");
+            compressor.CustomParameters.Add("d", "16");
+            compressor.CompressFiles(TemporaryFile, @"TestData\zip.zip");
         }
 
         [Test]
