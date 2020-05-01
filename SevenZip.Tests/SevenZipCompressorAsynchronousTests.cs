@@ -3,14 +3,14 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Threading;
-
+    using System.Threading.Tasks;
     using NUnit.Framework;
 
     [TestFixture]
     public class SevenZipCompressorAsynchronousTests : TestBase
     {
         [Test]
-        public void AsynchronousCompressDirecoryAndEventsTest()
+        public void AsynchronousCompressDirectoryAndEventsTest()
         {
             var filesFoundInvoked = 0;
             var fileCompressionStartedInvoked = 0;
@@ -177,6 +177,56 @@
             Assert.IsTrue(File.Exists(TemporaryFile));
 
             using (var extractor = new SevenZipExtractor(TemporaryFile))
+            {
+                Assert.AreEqual(2, extractor.FilesCount);
+                Assert.IsTrue(extractor.ArchiveFileNames.Contains("zip.zip"));
+                Assert.IsTrue(extractor.ArchiveFileNames.Contains("tar.tar"));
+
+                Assert.Throws<ExtractionFailedException>(() => extractor.ExtractArchive(OutputDirectory));
+            }
+        }
+
+        [Test]
+        public async Task CompressFilesAsync()
+        {
+            var compressor = new SevenZipCompressor { DirectoryStructure = false };
+            await compressor.CompressFilesAsync(TemporaryFile, @"TestData\zip.zip", @"TestData\tar.tar");
+
+            Assert.IsTrue(File.Exists(TemporaryFile));
+
+            using (var extractor = new SevenZipExtractor(TemporaryFile))
+            {
+                Assert.AreEqual(2, extractor.FilesCount);
+                Assert.IsTrue(extractor.ArchiveFileNames.Contains("zip.zip"));
+                Assert.IsTrue(extractor.ArchiveFileNames.Contains("tar.tar"));
+            }
+        }
+
+        [Test]
+        public async Task CompressDirectoryAsync()
+        {
+            var compressor = new SevenZipCompressor { DirectoryStructure = false };
+            await compressor.CompressDirectoryAsync("TestData", TemporaryFile);
+
+            Assert.IsTrue(File.Exists(TemporaryFile));
+
+            using (var extractor = new SevenZipExtractor(TemporaryFile))
+            {
+                Assert.AreEqual(Directory.GetFiles("TestData").Length, extractor.FilesCount);
+                Assert.IsTrue(extractor.ArchiveFileNames.Contains("zip.zip"));
+                Assert.IsTrue(extractor.ArchiveFileNames.Contains("tar.tar"));
+            }
+        }
+
+        [Test]
+        public async Task CompressFilesEncryptedAsync()
+        {
+            var compressor = new SevenZipCompressor { DirectoryStructure = false };
+            await compressor.CompressFilesEncryptedAsync(TemporaryFile, "secure", @"TestData\zip.zip", @"TestData\tar.tar");
+
+            Assert.IsTrue(File.Exists(TemporaryFile));
+
+            using (var extractor = new SevenZipExtractor(TemporaryFile, "insecure"))
             {
                 Assert.AreEqual(2, extractor.FilesCount);
                 Assert.IsTrue(extractor.ArchiveFileNames.Contains("zip.zip"));

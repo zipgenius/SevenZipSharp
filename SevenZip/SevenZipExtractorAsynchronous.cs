@@ -1,4 +1,4 @@
-﻿namespace SevenZip
+namespace SevenZip
 {
     using System;
     using System.IO;
@@ -55,6 +55,7 @@
         #endregion
 
         #region Delegates
+
         /// <summary>
         /// The delegate to use in BeginExtractArchive.
         /// </summary>
@@ -108,6 +109,17 @@
         }
 
         /// <summary>
+        /// Unpacks the whole archive asynchronously to the specified directory name at the specified priority.
+        /// </summary>
+        /// <param name="directory">The directory where the files are to be unpacked.</param>
+        public Task ExtractArchiveAsync(string directory)
+        {
+            SaveContext();
+            return Task.Run(() => new ExtractArchiveDelegate(ExtractArchive).Invoke(directory))
+                .ContinueWith(_ => ReleaseContext());
+        }
+
+        /// <summary>
         /// Unpacks the file asynchronously by its name to the specified stream.
         /// </summary>
         /// <param name="fileName">The file full name in the archive file table.</param>
@@ -116,6 +128,18 @@
         {
             SaveContext();
             Task.Run(() => new ExtractFileByFileNameDelegate(ExtractFile).Invoke(fileName, stream))
+                .ContinueWith(_ => ReleaseContext());
+        }
+
+        /// <summary>
+        /// Unpacks the file asynchronously by its name to the specified stream.
+        /// </summary>
+        /// <param name="fileName">The file full name in the archive file table.</param>
+        /// <param name="stream">The stream where the file is to be unpacked.</param>
+        public Task ExtractFileAsync(string fileName, Stream stream)
+        {
+            SaveContext();
+            return Task.Run(() => new ExtractFileByFileNameDelegate(ExtractFile).Invoke(fileName, stream))
                 .ContinueWith(_ => ReleaseContext());
         }
 
@@ -132,6 +156,18 @@
         }
 
         /// <summary>
+        /// Unpacks the file asynchronously by its name to the specified stream.
+        /// </summary>
+        /// <param name="index">Index in the archive file table.</param>
+        /// <param name="stream">The stream where the file is to be unpacked.</param>
+        public Task ExtractFileAsync(int index, Stream stream)
+        {
+            SaveContext();
+            return Task.Run(() => new ExtractFileByIndexDelegate(ExtractFile).Invoke(index, stream))
+                .ContinueWith(_ => ReleaseContext());
+        }
+
+        /// <summary>
         /// Unpacks files asynchronously by their indices to the specified directory.
         /// </summary>
         /// <param name="indexes">indexes of the files in the archive file table.</param>
@@ -140,6 +176,18 @@
         {
             SaveContext();
             Task.Run(() => new ExtractFiles1Delegate(ExtractFiles).Invoke(directory, indexes))
+                .ContinueWith(_ => ReleaseContext());
+        }
+
+        /// <summary>
+        /// Unpacks files asynchronously by their indices to the specified directory.
+        /// </summary>
+        /// <param name="indexes">indexes of the files in the archive file table.</param>
+        /// <param name="directory">Directory where the files are to be unpacked.</param>
+        public Task ExtractFilesAsync(string directory, params int[] indexes)
+        {
+            SaveContext();
+            return Task.Run(() => new ExtractFiles1Delegate(ExtractFiles).Invoke(directory, indexes))
                 .ContinueWith(_ => ReleaseContext());
         }
 
@@ -156,6 +204,18 @@
         }
 
         /// <summary>
+        /// Unpacks files asynchronously by their full names to the specified directory.
+        /// </summary>
+        /// <param name="fileNames">Full file names in the archive file table.</param>
+        /// <param name="directory">Directory where the files are to be unpacked.</param>
+        public Task ExtractFilesAsync(string directory, params string[] fileNames)
+        {
+            SaveContext();
+            return Task.Run(() => new ExtractFiles2Delegate(ExtractFiles).Invoke(directory, fileNames))
+                .ContinueWith(_ => ReleaseContext());
+        }
+
+        /// <summary>
         /// Extracts files from the archive asynchronously, giving a callback the choice what
         /// to do with each file. The order of the files is given by the archive.
         /// 7-Zip (and any other solid) archives are NOT supported.
@@ -165,6 +225,19 @@
         {
             SaveContext();
             Task.Run(() => new ExtractFiles3Delegate(ExtractFiles).Invoke(extractFileCallback))
+                .ContinueWith(_ => ReleaseContext());
+        }
+
+        /// <summary>
+        /// Extracts files from the archive asynchronously, giving a callback the choice what
+        /// to do with each file. The order of the files is given by the archive.
+        /// 7-Zip (and any other solid) archives are NOT supported.
+        /// </summary>
+        /// <param name="extractFileCallback">The callback to call for each file in the archive.</param>
+        public Task ExtractFilesAsync(ExtractFileCallback extractFileCallback)
+        {
+            SaveContext();
+            return Task.Run(() => new ExtractFiles3Delegate(ExtractFiles).Invoke(extractFileCallback))
                 .ContinueWith(_ => ReleaseContext());
         }
     }

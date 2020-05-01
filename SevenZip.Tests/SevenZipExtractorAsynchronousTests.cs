@@ -2,6 +2,7 @@
 {
     using System.IO;
     using System.Threading;
+    using System.Threading.Tasks;
     using NUnit.Framework;
 
     [TestFixture, Ignore("Flaky tests, need to be re-written to run consistently in AppVeyor.")]
@@ -124,6 +125,80 @@
             }
 
             Assert.IsTrue(extractionFinishedInvoked);
+            Assert.AreEqual(2, Directory.GetFiles(OutputDirectory).Length);
+        }
+
+        [Test]
+        public async Task ExtractArchiveAsync()
+        {
+            using (var extractor = new SevenZipExtractor(@"TestData\multiple_files.7z"))
+            {
+                await extractor.ExtractArchiveAsync(OutputDirectory);
+            }
+
+            Assert.AreEqual(3, Directory.GetFiles(OutputDirectory).Length);
+        }
+
+        [Test]
+        public async Task ExtractFileAsync_ByIndex()
+        {
+            using (var extractor = new SevenZipExtractor(@"TestData\multiple_files.7z"))
+            {
+                using (var fileStream = File.Create(TemporaryFile))
+                {
+                    await extractor.ExtractFileAsync(0, fileStream);
+                }
+            }
+
+            Assert.AreEqual(1, Directory.GetFiles(OutputDirectory).Length);
+            Assert.AreEqual("file1", File.ReadAllText(TemporaryFile));
+        }
+
+        [Test]
+        public async Task ExtractFileAsync_ByFileName()
+        {
+            using (var extractor = new SevenZipExtractor(@"TestData\multiple_files.7z"))
+            {
+                using (var fileStream = File.Create(TemporaryFile))
+                {
+                    await extractor.ExtractFileAsync("file1.txt", fileStream);
+                }
+            }
+
+            Assert.AreEqual(1, Directory.GetFiles(OutputDirectory).Length);
+            Assert.AreEqual("file1", File.ReadAllText(TemporaryFile));
+        }
+
+        [Test]
+        public async Task ExtractFilesAsync_ByCallback()
+        {
+            using (var extractor = new SevenZipExtractor(@"TestData\zip.zip"))
+            {
+                await extractor.ExtractFilesAsync(args => { args.ExtractToFile = TemporaryFile; });
+            }
+
+            Assert.AreEqual(1, Directory.GetFiles(OutputDirectory).Length);
+        }
+
+        [Test]
+        public async Task ExtractFilesAsync_ByIndex()
+        {
+            using (var extractor = new SevenZipExtractor(@"TestData\multiple_files.7z"))
+            {
+                await extractor.ExtractFilesAsync(OutputDirectory, 0, 2);
+            }
+
+            Assert.AreEqual(2, Directory.GetFiles(OutputDirectory).Length);
+        }
+
+        [Test]
+        public async Task ExtractFilesAsync_ByFileName()
+        {
+            using (var extractor = new SevenZipExtractor(@"TestData\multiple_files.7z"))
+            {
+                await extractor.ExtractFilesAsync(OutputDirectory, "file1.txt", "file3.txt");
+            }
+
             Assert.AreEqual(2, Directory.GetFiles(OutputDirectory).Length);
         }
     }
