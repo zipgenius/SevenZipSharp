@@ -55,6 +55,7 @@ namespace SevenZip
         #endregion
 
         #region Delegates
+
         /// <summary>
         /// The delegate to use in BeginExtractArchive.
         /// </summary>
@@ -151,6 +152,18 @@ namespace SevenZip
         {
             SaveContext();
             Task.Run(() => new ExtractFileByIndexDelegate(ExtractFile).Invoke(index, stream))
+                .ContinueWith(_ => ReleaseContext());
+        }
+
+        /// <summary>
+        /// Unpacks the file asynchronously by its name to the specified stream.
+        /// </summary>
+        /// <param name="index">Index in the archive file table.</param>
+        /// <param name="stream">The stream where the file is to be unpacked.</param>
+        public Task ExtractFileAsync(int index, Stream stream)
+        {
+            SaveContext();
+            return Task.Run(() => new ExtractFileByIndexDelegate(ExtractFile).Invoke(index, stream))
                 .ContinueWith(_ => ReleaseContext());
         }
 
