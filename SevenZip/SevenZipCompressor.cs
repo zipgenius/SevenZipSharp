@@ -1356,6 +1356,9 @@ namespace SevenZip
                 throw new ArgumentException("Directory \"" + directory + "\" does not exist!");
             }
 
+            // Get full path, in case this is eg. an SFN path.
+            directory = Path.GetFullPath(directory);
+
             if (RecursiveDirectoryEmptyCheck(directory))
             {
                 throw new SevenZipInvalidFileNamesException("the specified directory is empty!");

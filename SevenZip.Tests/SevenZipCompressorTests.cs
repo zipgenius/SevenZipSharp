@@ -31,6 +31,34 @@
         }
 
         [Test]
+        public void CompressDirectory_WithSfnPath()
+        {
+            var compressor = new SevenZipCompressor
+            {
+                ArchiveFormat = OutArchiveFormat.Zip,
+                PreserveDirectoryRoot = true
+            };
+
+
+            compressor.CompressDirectory("TESTDA~1", TemporaryFile);
+            Assert.IsTrue(File.Exists(TemporaryFile));
+
+            using (var extractor = new SevenZipExtractor(TemporaryFile))
+            {
+                Assert.IsTrue(extractor.ArchiveFileNames[0].StartsWith("TestData_LongerDirectoryName", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        [Test]
+        public void CompressDirectory_NonExistentDirectory()
+        {
+            var compressor = new SevenZipCompressor();
+
+            Assert.Throws<ArgumentException>(() => compressor.CompressDirectory("nonexistent", TemporaryFile));
+            Assert.Throws<ArgumentException>(() => compressor.CompressDirectory("", TemporaryFile));
+        }
+
+        [Test]
         public void CompressFileTest()
         {
             var compressor = new SevenZipCompressor
