@@ -93,6 +93,24 @@
         }
 
         [Test]
+        public void ExtractionWithSkipTest()
+        {
+            using (var tmp = new SevenZipExtractor(@"TestData\multiple_files.7z"))
+            {
+                tmp.FileExtractionStarted += (s, e) =>
+                                             {
+                                                 if (e.FileInfo.Index == 3)
+                                                 {
+                                                     e.Skip = true;
+                                                 }
+                                             };
+
+                tmp.ExtractArchive(OutputDirectory);
+
+                Assert.AreEqual(2, Directory.GetFiles(OutputDirectory).Length);
+            }
+        }
+        [Test]
         public void ExtractionFromStreamTest()
         {
             // TODO: Rewrite this to test against more/all TestData archives.
