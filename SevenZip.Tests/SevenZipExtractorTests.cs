@@ -99,7 +99,7 @@
             {
                 tmp.FileExtractionStarted += (s, e) =>
                                              {
-                                                 if (e.FileInfo.Index == 3)
+                                                 if (e.FileInfo.Index == 1)
                                                  {
                                                      e.Skip = true;
                                                  }
