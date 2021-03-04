@@ -1,4 +1,6 @@
-﻿#if UNMANAGED
+﻿using System;
+
+#if UNMANAGED
 
 namespace SevenZip
 {
@@ -25,6 +27,14 @@ namespace SevenZip
         /// </summary>
         public bool Cancel { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether to stop the current archive operation.
+        /// </summary>
+        public bool Skip
+        {
+            get => false;
+            set => throw new NotImplementedException();
+        }
         /// <summary>
         /// Gets the file name.
         /// </summary>

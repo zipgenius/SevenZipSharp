@@ -9,5 +9,10 @@
         /// Gets or sets whether to stop the current archive operation.
         /// </summary>
         bool Cancel { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether to skip the current file.
+        /// </summary>
+        bool Skip { get; set; }
     }
 }

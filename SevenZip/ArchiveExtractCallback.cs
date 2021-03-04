@@ -268,8 +268,11 @@ namespace SevenZip
                     if (_actualIndexes == null || _actualIndexes.Contains(index))
                     {
                         var data = new PropVariant();
-                        _archive.GetProperty(index, ItemPropId.Path, ref data);
-                        string entryName = NativeMethods.SafeCast(data, "");
+                        _archive.GetProperty(index,
+                                             ItemPropId.Path,
+                                             ref data);
+                        string entryName = NativeMethods.SafeCast(data,
+                                                                  "");
 
                         #region Get entryName
 
@@ -278,11 +281,14 @@ namespace SevenZip
                             if (_filesCount == 1)
                             {
                                 var archName = Path.GetFileName(_extractor.FileName);
-                                archName = archName.Substring(0, archName.LastIndexOf('.'));
-                                if (!archName.EndsWith(".tar", StringComparison.OrdinalIgnoreCase))
+                                archName = archName.Substring(0,
+                                                              archName.LastIndexOf('.'));
+                                if (!archName.EndsWith(".tar",
+                                                       StringComparison.OrdinalIgnoreCase))
                                 {
                                     archName += ".tar";
                                 }
+
                                 entryName = archName;
                             }
                             else
@@ -292,25 +298,34 @@ namespace SevenZip
                         }
 
                         #endregion
-                        
+
                         try
                         {
-                            fileName = Path.Combine(RemoveIllegalCharacters(_directory, true), RemoveIllegalCharacters(_directoryStructure ? entryName : Path.GetFileName(entryName)));
-                            ValidateFileNameAndCreateDirectory(fileName);
+                            fileName = Path.Combine(RemoveIllegalCharacters(_directory,
+                                                                            true),
+                                                    RemoveIllegalCharacters(_directoryStructure ? entryName : Path.GetFileName(entryName)));
+                            ValidateFileName(fileName);
                         }
                         catch (Exception e)
                         {
                             AddException(e);
-                            goto FileExtractionStartedLabel;
+                            outStream = _fakeStream;
+                            return 0;
                         }
 
-                        _archive.GetProperty(index, ItemPropId.IsDirectory, ref data);
-                        if (!NativeMethods.SafeCast(data, false))
+                        _archive.GetProperty(index,
+                                             ItemPropId.IsDirectory,
+                                             ref data);
+                        if (!NativeMethods.SafeCast(data,
+                                                    false))
                         {
                             #region Branch
 
-                            _archive.GetProperty(index, ItemPropId.LastWriteTime, ref data);
-                            var time = NativeMethods.SafeCast(data, DateTime.MinValue);
+                            _archive.GetProperty(index,
+                                                 ItemPropId.LastWriteTime,
+                                                 ref data);
+                            var time = NativeMethods.SafeCast(data,
+                                                              DateTime.MinValue);
                             if (File.Exists(fileName))
                             {
                                 var fnea = new FileOverwriteEventArgs(fileName);
@@ -320,41 +335,79 @@ namespace SevenZip
                                     Canceled = true;
                                     return -1;
                                 }
+
                                 if (String.IsNullOrEmpty(fnea.FileName))
                                 {
                                     outStream = _fakeStream;
-
-                                    goto FileExtractionStartedLabel;
                                 }
-                                fileName = fnea.FileName;
+                                else
+                                    fileName = fnea.FileName;
                             }
+
+                            _doneRate += 1.0f / _filesCount;
+                            var iea = new FileInfoEventArgs(_extractor.ArchiveFileData[(int) index],
+                                                            PercentDoneEventArgs.ProducePercentDone(_doneRate));
+                            OnFileExtractionStarted(iea);
+                            if (iea.Cancel)
+                            {
+                                Canceled = true;
+                                return -1;
+                            }
+
+                            if (iea.Skip)
+                            {
+                                outStream = _fakeStream;
+                                return 0;
+                            }
+
+                            CreateDirectory(fileName);
+
                             try
                             {
-                                _fileStream = new OutStreamWrapper(File.Create(fileName), fileName, time, true);
+                                _fileStream = new OutStreamWrapper(File.Create(fileName),
+                                                                   fileName,
+                                                                   time,
+                                                                   true);
                             }
                             catch (Exception e)
                             {
                                 if (e is FileNotFoundException)
                                 {
-                                    AddException(
-                                        new IOException("The file \"" + fileName +
-                                                        "\" was not extracted due to the File.Create fail."));
+                                    AddException(new IOException("The file \"" + fileName + "\" was not extracted due to the File.Create fail."));
                                 }
                                 else
                                 {
                                     AddException(e);
                                 }
+
                                 outStream = _fakeStream;
-                                goto FileExtractionStartedLabel;
+                                return 0;
                             }
+
                             _fileStream.BytesWritten += IntEventArgsHandler;
-                            outStream = _fileStream;
+                            outStream                =  _fileStream;
 
                             #endregion
                         }
                         else
                         {
                             #region Branch
+
+                            _doneRate += 1.0f / _filesCount;
+                            var iea = new FileInfoEventArgs(_extractor.ArchiveFileData[(int)index],
+                                                            PercentDoneEventArgs.ProducePercentDone(_doneRate));
+                            OnFileExtractionStarted(iea);
+                            if (iea.Cancel)
+                            {
+                                Canceled = true;
+                                return -1;
+                            }
+
+                            if (iea.Skip)
+                            {
+                                outStream = _fakeStream;
+                                return 0;
+                            }
 
                             if (!Directory.Exists(fileName))
                             {
@@ -366,6 +419,7 @@ namespace SevenZip
                                 {
                                     AddException(e);
                                 }
+
                                 outStream = _fakeStream;
                             }
 
@@ -385,7 +439,7 @@ namespace SevenZip
 
                     if (index == _fileIndex)
                     {
-                        outStream = _fileStream;
+                        outStream  = _fileStream;
                         _fileIndex = null;
                     }
                     else
@@ -395,33 +449,8 @@ namespace SevenZip
 
                     #endregion
                 }
-
-            FileExtractionStartedLabel:
-                _doneRate += 1.0f / _filesCount;
-                var iea = new FileInfoEventArgs(
-                    _extractor.ArchiveFileData[(int)index], PercentDoneEventArgs.ProducePercentDone(_doneRate));
-                OnFileExtractionStarted(iea);
-                if (iea.Cancel)
-                {
-                    if (!String.IsNullOrEmpty(fileName))
-                    {
-                        _fileStream.Dispose();
-                        if (File.Exists(fileName))
-                        {
-                            try
-                            {
-                                File.Delete(fileName);
-                            }
-                            catch (Exception e)
-                            {
-                                AddException(e);
-                            }
-                        }
-                    }
-                    Canceled = true;
-                    return -1;
-                }
             }
+
             return 0;
         }
 
@@ -541,13 +570,8 @@ namespace SevenZip
         /// </summary>
         /// <param name="fileName">File name</param>
         /// <returns>The valid file name</returns>
-        private static void ValidateFileNameAndCreateDirectory(string fileName)
+        private static void CreateDirectory(string fileName)
         {
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new SevenZipArchiveException("Some archive name is null or empty.");
-            }
-
             var destinationDirectory = Path.GetDirectoryName(fileName);
 
             if (!string.IsNullOrEmpty(destinationDirectory))
@@ -556,6 +580,18 @@ namespace SevenZip
             }
         }
 
+        // <summary>
+        /// Validates the file name
+        /// </summary>
+        /// <param name="fileName">File name</param>
+        /// <returns>The valid file name</returns>
+        private static void ValidateFileName(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                throw new SevenZipArchiveException("Some archive name is null or empty.");
+            }
+        }
         /// <summary>
         /// removes the invalid character in file path.
         /// </summary>

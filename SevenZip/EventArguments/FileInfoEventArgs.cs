@@ -24,6 +24,11 @@
         public bool Cancel { get; set; }
 
         /// <summary>
+        /// Gets or sets whether to skip the current file.
+        /// </summary>
+        public bool Skip { get; set; }
+
+        /// <summary>
         /// Gets the corresponding FileInfo to the event.
         /// </summary>
         public ArchiveFileInfo FileInfo => _fileInfo;
