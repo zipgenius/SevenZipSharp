@@ -10,7 +10,7 @@
     /// <remarks>Based on the code at http://blog.somecreativity.com/2008/04/08/how-to-check-if-a-file-is-compressed-in-c/#</remarks>
     internal static class FileChecker
     {
-        private const int SIGNATURE_SIZE = 16;
+        private const int SIGNATURE_SIZE = 21;
         private const int SFX_SCAN_LENGTH = 256 * 1024;
 
         private static bool SpecialDetect(Stream stream, int offset, InArchiveFormat expectedFormat)
