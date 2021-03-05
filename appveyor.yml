@@ -17,7 +17,7 @@ before_build:
 
 environment:
   COVERALLS_REPO_TOKEN:  
-    secure: 9nrrklS2VRyutuqp/K8xVrv8bD+rRW5HgjWJ670wirR74AgvGOd5qnwTIFWHZBEx
+    secure: Yl2mxaZDSyh9WZEmFgtlW1hPstoAsL2U7fMBge3Bqn720+3WFXRh+FVDAx9Eyu10
 
 build:
   parallel: true
