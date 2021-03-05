@@ -1,9 +1,9 @@
-﻿using System;
-
-#if UNMANAGED
+﻿#if UNMANAGED
 
 namespace SevenZip
 {
+    using System;
+
     /// <summary>
     /// EventArgs class which stores the file name.
     /// </summary>
@@ -35,6 +35,7 @@ namespace SevenZip
             get => false;
             set => throw new NotImplementedException();
         }
+
         /// <summary>
         /// Gets the file name.
         /// </summary>

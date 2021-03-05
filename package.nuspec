@@ -2,7 +2,7 @@
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 		<id>Squid-Box.SevenZipSharp</id>
-		<version>1.3.0</version>
+		<version>1.4.0</version>
 		<authors>Joel Ahlgren, Thomas Piart, markhor, Thomas Caudal</authors>
 		<summary>Managed 7-zip library written in C# (.NET 4.5 and .NET Standard 2.0) that provides data (self-)extraction and compression (all 7-zip formats are supported).</summary>
 		<description>Wraps 7z.dll or any compatible one and makes use of LZMA SDK.</description>
@@ -11,9 +11,11 @@
 		<projectUrl>https://github.com/squid-box/SevenZipSharp</projectUrl>
 		<tags>7z sevenzip sevenzipsharp 7-zip</tags>
 		<releaseNotes>
-			Added awaitable extraction functions, thanks to GitHub user kikijiki.
-			Added awaitable compression functions.
-		</releaseNotes>
+      Fixed issue with SFN paths during compression.
+      Fixed issue with library path detection during initialization, thanks to GitHub user thoemmi.
+      Fixed issue detecting .deb archives, thanks to GitHub user NickHarmer.
+      Added ability to skip files during archive extraction, thanks to GitHub user NickHarmer.
+    </releaseNotes>
     <dependencies>
       <group targetFramework="net45" />
       <group targetFramework="netstandard2.0">
