@@ -9,8 +9,7 @@ namespace SevenZip
     /// <summary>
     /// Archive extraction callback to handle the process of unpacking files
     /// </summary>
-    internal sealed class ArchiveExtractCallback : CallbackBase, IArchiveExtractCallback, ICryptoGetTextPassword,
-                                                   IDisposable
+    internal sealed class ArchiveExtractCallback : CallbackBase, IArchiveExtractCallback, ICryptoGetTextPassword, IDisposable
     {
         private List<uint> _actualIndexes;
         private IInArchive _archive;
@@ -36,7 +35,7 @@ namespace SevenZip
         private OutStreamWrapper _fileStream;
         private bool _directoryStructure;
         private int _currentIndex;
-        const int MEMORY_PRESSURE = 64 * 1024 * 1024; //64mb seems to be the maximum value
+        private const int MemoryPressure = 64 * 1024 * 1024; //64mb seems to be the maximum value
 
         #region Constructors
 
@@ -80,8 +79,7 @@ namespace SevenZip
         /// <param name="filesCount">The archive files count</param>
         /// <param name="fileIndex">The file index for the stream</param>
         /// <param name="extractor">The owner of the callback</param>
-        public ArchiveExtractCallback(IInArchive archive, Stream stream, int filesCount, uint fileIndex,
-                                      SevenZipExtractor extractor)
+        public ArchiveExtractCallback(IInArchive archive, Stream stream, int filesCount, uint fileIndex, SevenZipExtractor extractor)
         {
             Init(archive, stream, filesCount, fileIndex, extractor);
         }
@@ -95,15 +93,13 @@ namespace SevenZip
         /// <param name="fileIndex">The file index for the stream</param>
         /// <param name="password">Password for the archive</param>
         /// <param name="extractor">The owner of the callback</param>
-        public ArchiveExtractCallback(IInArchive archive, Stream stream, int filesCount, uint fileIndex, string password,
-                                      SevenZipExtractor extractor)
+        public ArchiveExtractCallback(IInArchive archive, Stream stream, int filesCount, uint fileIndex, string password, SevenZipExtractor extractor)
             : base(password)
         {
             Init(archive, stream, filesCount, fileIndex, extractor);
         }
 
-        private void Init(IInArchive archive, string directory, int filesCount, bool directoryStructure,
-            List<uint> actualIndexes, SevenZipExtractor extractor)
+        private void Init(IInArchive archive, string directory, int filesCount, bool directoryStructure, List<uint> actualIndexes, SevenZipExtractor extractor)
         {
             CommonInit(archive, filesCount, extractor);
             _directory = directory;
@@ -130,11 +126,9 @@ namespace SevenZip
             _fakeStream = new FakeOutStreamWrapper();
             _fakeStream.BytesWritten += IntEventArgsHandler;
             _extractor = extractor;
-            GC.AddMemoryPressure(MEMORY_PRESSURE);
+            GC.AddMemoryPressure(MemoryPressure);
         }
         #endregion
-
-        #region Events
 
         /// <summary>
         /// Occurs when a new file is going to be unpacked
@@ -162,46 +156,6 @@ namespace SevenZip
         /// </summary>
         public event EventHandler<FileOverwriteEventArgs> FileExists;
 
-        private void OnFileExists(FileOverwriteEventArgs e)
-        {
-            if (FileExists != null)
-            {
-                FileExists(this, e);
-            }
-        }
-
-        private void OnOpen(OpenEventArgs e)
-        {
-            if (Open != null)
-            {
-                Open(this, e);
-            }
-        }
-
-        private void OnFileExtractionStarted(FileInfoEventArgs e)
-        {
-            if (FileExtractionStarted != null)
-            {
-                FileExtractionStarted(this, e);
-            }
-        }
-
-        private void OnFileExtractionFinished(FileInfoEventArgs e)
-        {
-            if (FileExtractionFinished != null)
-            {
-                FileExtractionFinished(this, e);
-            }
-        }
-
-        private void OnExtracting(ProgressEventArgs e)
-        {
-            if (Extracting != null)
-            {
-                Extracting(this, e);
-            }
-        }
-
         private void IntEventArgsHandler(object sender, IntEventArgs e)
         {
             // If _bytesCount is not set, we can't update the progress.
@@ -210,10 +164,9 @@ namespace SevenZip
                 return;
             }
 
-
-            var pold = (int)((_bytesWrittenOld * 100) / _bytesCount);
+            var pold = (int)(_bytesWrittenOld * 100 / _bytesCount);
             _bytesWritten += e.Value;
-            var pnow = (int)((_bytesWritten * 100) / _bytesCount);
+            var pnow = (int)(_bytesWritten * 100 / _bytesCount);
 
             if (pnow > pold)
             {
@@ -221,12 +174,11 @@ namespace SevenZip
                 {
                     pold = pnow = 0;
                 }
+
                 _bytesWrittenOld = _bytesWritten;
-                OnExtracting(new ProgressEventArgs((byte)pnow, (byte)(pnow - pold)));
+                Extracting?.Invoke(this, new ProgressEventArgs((byte)pnow, (byte)(pnow - pold)));
             }
         }
-
-        #endregion
 
         #region IArchiveExtractCallback Members
 
@@ -237,7 +189,7 @@ namespace SevenZip
         public void SetTotal(ulong total)
         {
             _bytesCount = (long)total;
-            OnOpen(new OpenEventArgs(total));
+            Open?.Invoke(this, new OpenEventArgs(total));
         }
 
         public void SetCompleted(ref ulong completeValue) { }
@@ -257,32 +209,38 @@ namespace SevenZip
             {
                 return -1;
             }
+
             _currentIndex = (int)index;
+
             if (askExtractMode == AskMode.Extract)
             {
                 var fileName = _directory;
+
                 if (!_fileIndex.HasValue)
                 {
-                    #region Extraction to a file
+                    // Extraction to a file
 
                     if (_actualIndexes == null || _actualIndexes.Contains(index))
                     {
                         var data = new PropVariant();
                         _archive.GetProperty(index, ItemPropId.Path, ref data);
-                        string entryName = NativeMethods.SafeCast(data, "");
+                        var entryName = NativeMethods.SafeCast(data, "");
 
                         #region Get entryName
 
-                        if (String.IsNullOrEmpty(entryName))
+                        if (string.IsNullOrEmpty(entryName))
                         {
                             if (_filesCount == 1)
                             {
                                 var archName = Path.GetFileName(_extractor.FileName);
-                                archName = archName.Substring(0, archName.LastIndexOf('.'));
-                                if (!archName.EndsWith(".tar", StringComparison.OrdinalIgnoreCase))
+                                archName = archName.Substring(0,
+                                                              archName.LastIndexOf('.'));
+                                if (!archName.EndsWith(".tar",
+                                                       StringComparison.OrdinalIgnoreCase))
                                 {
                                     archName += ".tar";
                                 }
+
                                 entryName = archName;
                             }
                             else
@@ -292,69 +250,107 @@ namespace SevenZip
                         }
 
                         #endregion
-                        
+
                         try
                         {
                             fileName = Path.Combine(RemoveIllegalCharacters(_directory, true), RemoveIllegalCharacters(_directoryStructure ? entryName : Path.GetFileName(entryName)));
-                            ValidateFileNameAndCreateDirectory(fileName);
+                            
+                            if (string.IsNullOrEmpty(fileName))
+                            {
+                                throw new SevenZipArchiveException("Some archive name is null or empty.");
+                            }
                         }
                         catch (Exception e)
                         {
                             AddException(e);
-                            goto FileExtractionStartedLabel;
+                            outStream = _fakeStream;
+
+                            return 0;
                         }
 
                         _archive.GetProperty(index, ItemPropId.IsDirectory, ref data);
+
                         if (!NativeMethods.SafeCast(data, false))
                         {
-                            #region Branch
-
                             _archive.GetProperty(index, ItemPropId.LastWriteTime, ref data);
                             var time = NativeMethods.SafeCast(data, DateTime.MinValue);
+                            
                             if (File.Exists(fileName))
                             {
                                 var fnea = new FileOverwriteEventArgs(fileName);
-                                OnFileExists(fnea);
+
+                                FileExists?.Invoke(this, fnea);
+                                
                                 if (fnea.Cancel)
                                 {
                                     Canceled = true;
                                     return -1;
                                 }
-                                if (String.IsNullOrEmpty(fnea.FileName))
+
+                                if (string.IsNullOrEmpty(fnea.FileName))
                                 {
                                     outStream = _fakeStream;
-
-                                    goto FileExtractionStartedLabel;
                                 }
-                                fileName = fnea.FileName;
+                                else
+                                {
+                                    fileName = fnea.FileName;
+                                }
                             }
+
+                            _doneRate += 1.0f / _filesCount;
+                            var iea = new FileInfoEventArgs(_extractor.ArchiveFileData[(int) index], PercentDoneEventArgs.ProducePercentDone(_doneRate));
+
+                            FileExtractionStarted?.Invoke(this, iea);
+                            
+                            if (iea.Cancel)
+                            {
+                                Canceled = true;
+                                return -1;
+                            }
+
+                            if (iea.Skip)
+                            {
+                                outStream = _fakeStream;
+                                return 0;
+                            }
+
+                            CreateDirectory(fileName);
+
                             try
                             {
                                 _fileStream = new OutStreamWrapper(File.Create(fileName), fileName, time, true);
                             }
                             catch (Exception e)
                             {
-                                if (e is FileNotFoundException)
-                                {
-                                    AddException(
-                                        new IOException("The file \"" + fileName +
-                                                        "\" was not extracted due to the File.Create fail."));
-                                }
-                                else
-                                {
-                                    AddException(e);
-                                }
-                                outStream = _fakeStream;
-                                goto FileExtractionStartedLabel;
-                            }
-                            _fileStream.BytesWritten += IntEventArgsHandler;
-                            outStream = _fileStream;
+                                AddException(e is FileNotFoundException
+                                    ? new IOException($"The file \"{fileName}\" was not extracted due to the File.Create fail.")
+                                    : e);
 
-                            #endregion
+                                outStream = _fakeStream;
+
+                                return 0;
+                            }
+
+                            _fileStream.BytesWritten += IntEventArgsHandler;
+                            outStream =  _fileStream;
                         }
                         else
                         {
-                            #region Branch
+                            _doneRate += 1.0f / _filesCount;
+                            var iea = new FileInfoEventArgs(_extractor.ArchiveFileData[(int)index], PercentDoneEventArgs.ProducePercentDone(_doneRate));
+                            FileExtractionStarted?.Invoke(this, iea);
+                            
+                            if (iea.Cancel)
+                            {
+                                Canceled = true;
+                                return -1;
+                            }
+
+                            if (iea.Skip)
+                            {
+                                outStream = _fakeStream;
+                                return 0;
+                            }
 
                             if (!Directory.Exists(fileName))
                             {
@@ -366,71 +362,39 @@ namespace SevenZip
                                 {
                                     AddException(e);
                                 }
+
                                 outStream = _fakeStream;
                             }
-
-                            #endregion
                         }
                     }
                     else
                     {
                         outStream = _fakeStream;
                     }
-
-                    #endregion
                 }
                 else
                 {
-                    #region Extraction to a stream
+                    // Extraction to a stream.
 
                     if (index == _fileIndex)
                     {
-                        outStream = _fileStream;
+                        outStream  = _fileStream;
                         _fileIndex = null;
                     }
                     else
                     {
                         outStream = _fakeStream;
                     }
-
-                    #endregion
-                }
-
-            FileExtractionStartedLabel:
-                _doneRate += 1.0f / _filesCount;
-                var iea = new FileInfoEventArgs(
-                    _extractor.ArchiveFileData[(int)index], PercentDoneEventArgs.ProducePercentDone(_doneRate));
-                OnFileExtractionStarted(iea);
-                if (iea.Cancel)
-                {
-                    if (!String.IsNullOrEmpty(fileName))
-                    {
-                        _fileStream.Dispose();
-                        if (File.Exists(fileName))
-                        {
-                            try
-                            {
-                                File.Delete(fileName);
-                            }
-                            catch (Exception e)
-                            {
-                                AddException(e);
-                            }
-                        }
-                    }
-                    Canceled = true;
-                    return -1;
                 }
             }
+
             return 0;
         }
 
+        /// <inheritdoc />
         public void PrepareOperation(AskMode askExtractMode) { }
 
-        /// <summary>
-        /// Called when the archive was extracted
-        /// </summary>
-        /// <param name="operationResult"></param>
+        /// <inheritdoc />
         public void SetOperationResult(OperationResult operationResult)
         {
             if (operationResult != OperationResult.Ok && ReportErrors)
@@ -481,9 +445,10 @@ namespace SevenZip
                     catch (ObjectDisposedException) { }
                     _fileStream = null;
                 }
-                var iea = new FileInfoEventArgs(
-                    _extractor.ArchiveFileData[_currentIndex], PercentDoneEventArgs.ProducePercentDone(_doneRate));                
-                OnFileExtractionFinished(iea);
+
+                var iea = new FileInfoEventArgs(_extractor.ArchiveFileData[_currentIndex], PercentDoneEventArgs.ProducePercentDone(_doneRate));
+                FileExtractionFinished?.Invoke(this, iea);
+                
                 if (iea.Cancel)
                 {
                     Canceled = true;
@@ -493,26 +458,17 @@ namespace SevenZip
 
         #endregion
 
-        #region ICryptoGetTextPassword Members
-
-        /// <summary>
-        /// Sets password for the archive
-        /// </summary>
-        /// <param name="password">Password for the archive</param>
-        /// <returns>Zero if everything is OK</returns>
+        /// <inheritdoc />
         public int CryptoGetTextPassword(out string password)
         {
             password = Password;
             return 0;
         }
 
-        #endregion
-
-        #region IDisposable Members
-
+        /// <inheritdoc />
         public void Dispose()
         {
-            GC.RemoveMemoryPressure(MEMORY_PRESSURE);
+            GC.RemoveMemoryPressure(MemoryPressure);
 
             if (_fileStream != null)
             {
@@ -523,6 +479,7 @@ namespace SevenZip
                 catch (ObjectDisposedException) { }
                 _fileStream = null;
             }
+
             if (_fakeStream != null)
             {
                 try
@@ -534,20 +491,12 @@ namespace SevenZip
             }
         }
 
-        #endregion
-
         /// <summary>
-        /// Validates the file name and ensures that the directory to the file name is valid and creates intermediate directories if necessary
+        /// Ensures that the directory to the file name is valid and creates intermediate directories if necessary
         /// </summary>
         /// <param name="fileName">File name</param>
-        /// <returns>The valid file name</returns>
-        private static void ValidateFileNameAndCreateDirectory(string fileName)
+        private static void CreateDirectory(string fileName)
         {
-            if (string.IsNullOrEmpty(fileName))
-            {
-                throw new SevenZipArchiveException("Some archive name is null or empty.");
-            }
-
             var destinationDirectory = Path.GetDirectoryName(fileName);
 
             if (!string.IsNullOrEmpty(destinationDirectory))
@@ -564,36 +513,35 @@ namespace SevenZip
         /// <returns></returns>
         private static string RemoveIllegalCharacters(string str, bool isDirectory = false)
         {
-            var splittedFileName = new List<string>(str.Split(Path.DirectorySeparatorChar));
+            var splitFileName = new List<string>(str.Split(Path.DirectorySeparatorChar));
 
-            foreach (char chr in Path.GetInvalidFileNameChars())
+            foreach (var chr in Path.GetInvalidFileNameChars())
             {
-                for (int i = 0; i < splittedFileName.Count; i++)
+                for (var i = 0; i < splitFileName.Count; i++)
                 {
                     if (isDirectory && chr == ':' && i == 0)
                     {
                         continue;
                     }
-                    if (String.IsNullOrEmpty(splittedFileName[i]))
+                    if (string.IsNullOrEmpty(splitFileName[i]))
                     {
                         continue;
                     }
-                    while (splittedFileName[i].IndexOf(chr) > -1)
+                    while (splitFileName[i].IndexOf(chr) > -1)
                     {
-                        splittedFileName[i] = splittedFileName[i].Replace(chr, '_');
+                        splitFileName[i] = splitFileName[i].Replace(chr, '_');
                     }
                 }
             }
 
-            if (str.StartsWith(new string(Path.DirectorySeparatorChar, 2),
-                                    StringComparison.CurrentCultureIgnoreCase))
+            if (str.StartsWith(new string(Path.DirectorySeparatorChar, 2), StringComparison.CurrentCultureIgnoreCase))
             {
-                splittedFileName.RemoveAt(0);
-                splittedFileName.RemoveAt(0);
-                splittedFileName[0] = new string(Path.DirectorySeparatorChar, 2) + splittedFileName[0];
+                splitFileName.RemoveAt(0);
+                splitFileName.RemoveAt(0);
+                splitFileName[0] = new string(Path.DirectorySeparatorChar, 2) + splitFileName[0];
             }
 
-            return String.Join(new string(Path.DirectorySeparatorChar, 1), splittedFileName.ToArray());
+            return string.Join(new string(Path.DirectorySeparatorChar, 1), splitFileName.ToArray());
         }
     }
 #endif

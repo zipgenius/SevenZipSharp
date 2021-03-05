@@ -2,6 +2,8 @@
 
 namespace SevenZip
 {
+    using System;
+
     /// <summary>
     /// EventArgs class which stores the file name.
     /// </summary>
@@ -24,6 +26,15 @@ namespace SevenZip
         /// Gets or sets whether to stop the current archive operation.
         /// </summary>
         public bool Cancel { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether to stop the current archive operation.
+        /// </summary>
+        public bool Skip
+        {
+            get => false;
+            set => throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Gets the file name.

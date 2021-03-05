@@ -31,7 +31,7 @@ namespace SevenZip
         ///     - Built decoders: LZMA, PPMD, BCJ, BCJ2, COPY, AES-256 Encryption, BZip2, Deflate.
         /// 7z.dll (from the 7-zip distribution) supports every InArchiveFormat for encoding and decoding.
         /// </remarks>
-        private static string _libraryFileName = DetermineLibraryFilePath();
+        private static string _libraryFileName;
 
         private static string DetermineLibraryFilePath()
         {
@@ -41,9 +41,9 @@ namespace SevenZip
             }
 	
             if (string.IsNullOrEmpty(Assembly.GetExecutingAssembly().Location)) 
-	    {
-		return null;
-	    }
+            {
+                return null;
+            }
 
             return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), Environment.Is64BitProcess ? "7z64.dll" : "7z.dll");
         }
@@ -115,6 +115,11 @@ namespace SevenZip
 
                 if (_modulePtr == IntPtr.Zero)
                 {
+                    if (_libraryFileName == null)
+                    {
+                        _libraryFileName = DetermineLibraryFilePath();
+                    }
+
                     if (!File.Exists(_libraryFileName))
                     {
                         throw new SevenZipLibraryException("DLL file does not exist.");
@@ -158,6 +163,11 @@ namespace SevenZip
                 {
                     if (!_modifyCapable.HasValue)
                     {
+                        if (_libraryFileName == null)
+                        {
+                            _libraryFileName = DetermineLibraryFilePath();
+                        }
+
                         FileVersionInfo dllVersionInfo = FileVersionInfo.GetVersionInfo(_libraryFileName);
                         _modifyCapable = dllVersionInfo.FileMajorPart >= 9;
                     }

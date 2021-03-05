@@ -486,6 +486,7 @@ namespace SevenZip
         private static int CommonRoot(ICollection<string> files)
         {
             var splitFileNames = new List<string[]>(files.Count);
+
             splitFileNames.AddRange(files.Select(fn => fn.Split(Path.DirectorySeparatorChar)));
             var minSplitLength = splitFileNames[0].Length - 1;
 
@@ -1106,7 +1107,7 @@ namespace SevenZip
         public void CompressFiles(
             string archiveName, params string[] fileFullNames)
         {
-            CompressFilesEncrypted(archiveName, "", fileFullNames);
+            CompressFilesEncrypted(archiveName, string.Empty, fileFullNames);
         }
 
         /// <summary>
@@ -1118,7 +1119,7 @@ namespace SevenZip
         public void CompressFiles(
             Stream archiveStream, params string[] fileFullNames)
         {
-            CompressFilesEncrypted(archiveStream, "", fileFullNames);
+            CompressFilesEncrypted(archiveStream, string.Empty, fileFullNames);
         }
 
         /// <summary>
@@ -1130,7 +1131,7 @@ namespace SevenZip
         public void CompressFiles(
             string archiveName, int commonRootLength, params string[] fileFullNames)
         {
-            CompressFilesEncrypted(archiveName, commonRootLength, "", fileFullNames);
+            CompressFilesEncrypted(archiveName, commonRootLength, string.Empty, fileFullNames);
         }
 
         /// <summary>
@@ -1143,7 +1144,8 @@ namespace SevenZip
         public void CompressFiles(
             Stream archiveStream, int commonRootLength, params string[] fileFullNames)
         {
-            CompressFilesEncrypted(archiveStream, commonRootLength, "", fileFullNames);
+            fileFullNames = GetFullFilePaths(fileFullNames);
+            CompressFilesEncrypted(archiveStream, commonRootLength, string.Empty, fileFullNames);
         }
 
         /// <summary>
@@ -1155,6 +1157,7 @@ namespace SevenZip
         public void CompressFilesEncrypted(
             string archiveName, string password, params string[] fileFullNames)
         {
+            fileFullNames = GetFullFilePaths(fileFullNames);
             CompressFilesEncrypted(archiveName, CommonRoot(fileFullNames), password, fileFullNames);
         }
 
@@ -1168,6 +1171,7 @@ namespace SevenZip
         public void CompressFilesEncrypted(
             Stream archiveStream, string password, params string[] fileFullNames)
         {
+            fileFullNames = GetFullFilePaths(fileFullNames);
             CompressFilesEncrypted(archiveStream, CommonRoot(fileFullNames), password, fileFullNames);
         }
 
@@ -1355,6 +1359,9 @@ namespace SevenZip
             {
                 throw new ArgumentException("Directory \"" + directory + "\" does not exist!");
             }
+
+            // Get full path, in case this is eg. an SFN path.
+            directory = Path.GetFullPath(directory);
 
             if (RecursiveDirectoryEmptyCheck(directory))
             {
@@ -1865,6 +1872,16 @@ namespace SevenZip
                     return outStream.ToArray();
                 }
             }
+        }
+
+        /// <summary>
+        /// Ensures an array of file names is the full path to that file.
+        /// </summary>
+        /// <param name="fileFullNames">Array of file names.</param>
+        /// <returns>Array of file names with full paths.</returns>
+        private static string[] GetFullFilePaths(IEnumerable<string> fileFullNames)
+        {
+            return fileFullNames.Select(Path.GetFullPath).ToArray();
         }
     }
 }
