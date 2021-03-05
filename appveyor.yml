@@ -17,7 +17,7 @@ before_build:
 
 environment:
   COVERALLS_REPO_TOKEN:  
-    secure: 9nrrklS2VRyutuqp/K8xVrv8bD+rRW5HgjWJ670wirR74AgvGOd5qnwTIFWHZBEx
+    secure: Yl2mxaZDSyh9WZEmFgtlW1hPstoAsL2U7fMBge3Bqn720+3WFXRh+FVDAx9Eyu10
 
 build:
   parallel: true
@@ -41,7 +41,7 @@ artifacts:
 deploy:
   - provider: NuGet
     api_key:
-      secure: IdCDi2XkyvZ9lR6NiI6gZ3I0XHpljSubb6ZK46to4fOQW8M2MTQaxEKhOFxa1B
+      secure: QHcRI5K4Gls/HtuXas7mofJp3/UIexnWnGeXch3+btMTwTk4mgvsWDWPcZWXor9y
     artifact: /SevenZip.*\.nupkg/
     skip_symbols: false
     on:
