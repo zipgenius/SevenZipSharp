@@ -42,7 +42,7 @@ namespace SevenZip
         /// </summary>
         public Dictionary<string, string> CustomParameters { get; private set; }
 
-        private int _volumeSize;
+        private long _volumeSize;
         private string _archiveName;
 
         /// <summary>
@@ -187,9 +187,7 @@ namespace SevenZip
 
                 if (inArchive.Open(inArchiveStream, ref checkPos, openCallback) != (int) OperationResult.Ok)
                 {
-                    if (
-                        !ThrowException(null,
-                            new SevenZipArchiveException("Can not update the archive: Open() failed.")))
+                    if (!ThrowException(null, new SevenZipArchiveException("Can not update the archive: Open() failed.")))
                     {
                         return null;
                     }
@@ -257,15 +255,13 @@ namespace SevenZip
                 default:
                 {
                     var setter =
-                        CompressionMode == CompressionMode.Create && _updateData.FileNamesToModify == null
-                            ? (ISetProperties) SevenZipLibraryManager.OutArchive(_archiveFormat, this)
-                            : (ISetProperties) SevenZipLibraryManager.InArchive(Formats.InForOutFormats[_archiveFormat], this);
+                        CompressionMode == CompressionMode.Create && _updateData.FileNamesToModify == null ? 
+                            (ISetProperties) SevenZipLibraryManager.OutArchive(_archiveFormat, this) : 
+                            (ISetProperties) SevenZipLibraryManager.InArchive(Formats.InForOutFormats[_archiveFormat], this);
                     
                     if (setter == null)
                     {
-                        if (!ThrowException(null,
-                            new CompressionFailedException(
-                                "The specified archive format is unsupported.")))
+                        if (!ThrowException(null, new CompressionFailedException("The specified archive format is unsupported.")))
                         {
                             return;
                         }
@@ -273,17 +269,14 @@ namespace SevenZip
 
                     if (_volumeSize > 0 && ArchiveFormat != OutArchiveFormat.SevenZip)
                     {
-                        throw new CompressionFailedException(
-                            "Unfortunately, the creation of multi-volume non-7Zip archives is not implemented.");
+                        throw new CompressionFailedException("Unfortunately, the creation of multi-volume non-7Zip archives is not implemented.");
                     }
 
                     #region Check for "forbidden" parameters
 
                     if (CustomParameters.ContainsKey("x"))
                     {
-                        if (!ThrowException(null,
-                                new CompressionFailedException(
-                                    "Use the \"CompressionLevel\" property instead of the \"x\" parameter.")))
+                        if (!ThrowException(null, new CompressionFailedException("Use the \"CompressionLevel\" property instead of the \"x\" parameter.")))
                         {
                             return;
                         }
@@ -291,9 +284,7 @@ namespace SevenZip
 
                     if (CustomParameters.ContainsKey("em"))
                     {
-                        if (!ThrowException(null,
-                            new CompressionFailedException(
-                                "Use the \"ZipEncryptionMethod\" property instead of the \"em\" parameter.")))
+                        if (!ThrowException(null, new CompressionFailedException("Use the \"ZipEncryptionMethod\" property instead of the \"em\" parameter.")))
                         {
                             return;
                         }
@@ -301,9 +292,7 @@ namespace SevenZip
 
                     if (CustomParameters.ContainsKey("m"))
                     {
-                        if (!ThrowException(null,
-                            new CompressionFailedException(
-                                "Use the \"CompressionMethod\" property instead of the \"m\" parameter.")))
+                        if (!ThrowException(null, new CompressionFailedException("Use the \"CompressionMethod\" property instead of the \"m\" parameter.")))
                         {
                             return;
                         }
@@ -323,9 +312,9 @@ namespace SevenZip
 
                     if (_compressionMethod != CompressionMethod.Default)
                     {
-                        names.Add(_archiveFormat == OutArchiveFormat.Zip
-                            ? Marshal.StringToBSTR("m")
-                            : Marshal.StringToBSTR("0"));
+                        names.Add(_archiveFormat == OutArchiveFormat.Zip ? 
+                            Marshal.StringToBSTR("m") : 
+                            Marshal.StringToBSTR("0"));
 
                         var pv = new PropVariant
                         {
@@ -340,11 +329,9 @@ namespace SevenZip
                     {
                         #region Validate parameters against compression method.
 
-                        if (_compressionMethod != CompressionMethod.Ppmd &&
-                            (pair.Key.Equals("mem") || pair.Key.Equals("o")))
+                        if (_compressionMethod != CompressionMethod.Ppmd && (pair.Key.Equals("mem") || pair.Key.Equals("o")))
                         {
-                            ThrowException(null, new CompressionFailedException(
-                                $"Parameter \"{pair.Key}\" is only valid with the PPMd compression method."));
+                            ThrowException(null, new CompressionFailedException($"Parameter \"{pair.Key}\" is only valid with the PPMd compression method."));
                         }
 
                         #endregion
@@ -431,8 +418,7 @@ namespace SevenZip
 
                     #region Encrypt headers
 
-                    if (EncryptHeaders && _archiveFormat == OutArchiveFormat.SevenZip &&
-                        !SwitchIsInCustomParameters("he"))
+                    if (EncryptHeaders && _archiveFormat == OutArchiveFormat.SevenZip && !SwitchIsInCustomParameters("he"))
                     {
                         names.Add(Marshal.StringToBSTR("he"));
                         var tmp = new PropVariant {VarType = VarEnum.VT_BSTR, Value = Marshal.StringToBSTR("on")};
@@ -1088,7 +1074,7 @@ namespace SevenZip
         /// <summary>
         /// Gets or sets the size in bytes of an archive volume (0 for no volumes).
         /// </summary>
-        public int VolumeSize
+        public long VolumeSize
         {
             get => _volumeSize;
 
@@ -1525,8 +1511,8 @@ namespace SevenZip
                 pair => pair.Value != null && (!pair.Value.CanSeek || !pair.Value.CanRead)).Any(
                 pair => !ThrowException(null,
                     new ArgumentException(
-                        "The specified stream dictionary contains an invalid stream corresponding to the archive entry \""
-                        + pair.Key + "\".", "streamDictionary"))))
+                        $"The specified stream dictionary contains an invalid stream corresponding to the archive entry \"{pair.Key}\".", 
+                        nameof(streamDictionary)))))
             {
                 return;
             }

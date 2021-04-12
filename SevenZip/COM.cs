@@ -10,6 +10,8 @@
 
 #if UNMANAGED
 
+    // ReSharper disable file ConvertToAutoProperty - For UWP compatibility.
+
     /// <summary>
     /// The structure to fix x64 and x32 variant size mismatch.
     /// </summary>
@@ -39,6 +41,12 @@
         [FieldOffset(8)]
         private readonly PropArray _propArray;
 
+        [FieldOffset(8)] private IntPtr _value;
+        [FieldOffset(8)] private uint _uInt32Value;
+        [FieldOffset(8)] private int _int32Value;
+        [FieldOffset(8)] private long _int64Value;
+        [FieldOffset(8)] private ulong _uInt64Value;
+
         /// <summary>
         /// Gets or sets variant type.
         /// </summary>
@@ -58,32 +66,51 @@
         /// <summary>
         /// Gets or sets the pointer value of the COM variant
         /// </summary>
-        [field: FieldOffset(8)]
-        public IntPtr Value { get; set; }
+        public IntPtr Value
+        {
+            get => _value;
+            set => _value = value;
+        }
 
         /// <summary>
         /// Gets or sets the UInt32 value of the COM variant.
         /// </summary>
-        [field: FieldOffset(8)]
-        public uint UInt32Value { get; set; }
+        
+        public uint UInt32Value
+        {
+            get => _uInt32Value;
+            set => _uInt32Value = value;
+        }
 
         /// <summary>
         /// Gets or sets the UInt32 value of the COM variant.
         /// </summary>
-        [field: FieldOffset(8)]
-        public int Int32Value { get; set; }
+        
+        public int Int32Value
+        {
+            get => _int32Value;
+            set => _int32Value = value;
+        }
 
         /// <summary>
         /// Gets or sets the Int64 value of the COM variant
         /// </summary>
-        [field: FieldOffset(8)]
-        public long Int64Value { get; set; }
+        
+        public long Int64Value
+        {
+            get => _int64Value;
+            set => _int64Value = value;
+        }
 
         /// <summary>
         /// Gets or sets the UInt64 value of the COM variant
         /// </summary>
-        [field: FieldOffset(8)]
-        public ulong UInt64Value { get; set; }
+        
+        public ulong UInt64Value
+        {
+            get => _uInt64Value;
+            set => _uInt64Value = value;
+        }
 
         /// <summary>
         /// Gets the object for this PropVariant.
