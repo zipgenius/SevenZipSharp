@@ -10,14 +10,23 @@ namespace SevenZip.Sdk
         {
             Table = new uint[256];
             const uint kPoly = 0xEDB88320;
+            
             for (uint i = 0; i < 256; i++)
             {
-                uint r = i;
-                for (int j = 0; j < 8; j++)
+                var r = i;
+                
+                for (var j = 0; j < 8; j++)
+                {
                     if ((r & 1) != 0)
+                    {
                         r = (r >> 1) ^ kPoly;
+                    }
                     else
+                    {
                         r >>= 1;
+                    }
+                }
+
                 Table[i] = r;
             }
         }
@@ -41,19 +50,6 @@ namespace SevenZip.Sdk
         public uint GetDigest()
         {
             return _value ^ 0xFFFFFFFF;
-        }
-
-        private static uint CalculateDigest(byte[] data, uint offset, uint size)
-        {
-            var crc = new CRC();
-            // crc.Init();
-            crc.Update(data, offset, size);
-            return crc.GetDigest();
-        }
-
-        private static bool VerifyDigest(uint digest, byte[] data, uint offset, uint size)
-        {
-            return (CalculateDigest(data, offset, size) == digest);
         }
     }
 }

@@ -174,6 +174,21 @@
         }
 
         [Test]
+        public void ModifyNonArchiveTest()
+        {
+            var compressor = new SevenZipCompressor
+            {
+                DirectoryStructure = false
+            };
+
+            File.WriteAllText(TemporaryFile, "I'm not an archive.");
+
+            var modificationList = new Dictionary<int, string> {{0, ""}};
+
+            Assert.Throws<SevenZipArchiveException>(() => compressor.ModifyArchive(TemporaryFile, modificationList));
+        }
+
+        [Test]
         public void CompressWithModifyModeRenameTest()
         {
             var compressor = new SevenZipCompressor

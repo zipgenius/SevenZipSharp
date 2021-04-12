@@ -110,6 +110,7 @@
                 Assert.AreEqual(2, Directory.GetFiles(OutputDirectory).Length);
             }
         }
+
         [Test]
         public void ExtractionFromStreamTest()
         {
