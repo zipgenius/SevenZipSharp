@@ -42,7 +42,7 @@ namespace SevenZip
         /// </summary>
         public Dictionary<string, string> CustomParameters { get; private set; }
 
-        private int _volumeSize;
+        private long _volumeSize;
         private string _archiveName;
 
         /// <summary>
@@ -1088,7 +1088,7 @@ namespace SevenZip
         /// <summary>
         /// Gets or sets the size in bytes of an archive volume (0 for no volumes).
         /// </summary>
-        public int VolumeSize
+        public long VolumeSize
         {
             get => _volumeSize;
 
@@ -1525,8 +1525,8 @@ namespace SevenZip
                 pair => pair.Value != null && (!pair.Value.CanSeek || !pair.Value.CanRead)).Any(
                 pair => !ThrowException(null,
                     new ArgumentException(
-                        "The specified stream dictionary contains an invalid stream corresponding to the archive entry \""
-                        + pair.Key + "\".", "streamDictionary"))))
+                        $"The specified stream dictionary contains an invalid stream corresponding to the archive entry \"{pair.Key}\".", 
+                        nameof(streamDictionary)))))
             {
                 return;
             }

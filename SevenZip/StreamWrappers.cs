@@ -382,7 +382,7 @@ namespace SevenZip
     internal sealed class OutMultiStreamWrapper : MultiStreamWrapper, ISequentialOutStream, IOutStream
     {
         private readonly string _archiveName;
-        private readonly int _volumeSize;
+        private readonly long _volumeSize;
         private long _overallLength;
 
         /// <summary>
@@ -390,7 +390,7 @@ namespace SevenZip
         /// </summary>
         /// <param name="archiveName">The archive name.</param>
         /// <param name="volumeSize">The volume size.</param>
-        public OutMultiStreamWrapper(string archiveName, int volumeSize) :
+        public OutMultiStreamWrapper(string archiveName, long volumeSize) :
             base(true)
         {
             _archiveName = archiveName;
