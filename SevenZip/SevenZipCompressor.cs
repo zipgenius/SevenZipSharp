@@ -211,6 +211,8 @@ namespace SevenZip
                 return true;
             }
 
+            // TODO: Decide what to do with a returned "false" from this method!
+
             switch (_archiveFormat)
             {
                 case OutArchiveFormat.GZip:
@@ -228,6 +230,10 @@ namespace SevenZip
                 case OutArchiveFormat.Tar:
                 {
                     return method == CompressionMethod.Copy;
+                }
+                case OutArchiveFormat.Zip:
+                {
+                    return method != CompressionMethod.Lzma2;
                 }
                 default:
                 {

@@ -224,6 +224,12 @@ namespace SevenZip
                             case -2147024809:
                                 exception = new SevenZipException("Invalid arguments provided. (0x80070057: E_INVALIDARG)");
                                 break;
+                            case -2147467263:
+                                exception = new SevenZipException("Functionality not implemented. (0x80004001: E_NOTIMPL)");
+                                break;
+                            case -2147024891:
+                                exception = new SevenZipException("Access is denied. (0x80070005: E_ACCESSDENIED)");
+                                break;
                             default:
                                 exception = new SevenZipException(
                                     $"Execution has failed due to an internal SevenZipSharp issue (0x{hresult:x} / {hresult}).\n" +
