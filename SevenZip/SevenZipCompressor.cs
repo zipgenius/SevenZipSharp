@@ -6,7 +6,9 @@ namespace SevenZip
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
+#if NET45 || NETSTANDARD2_0
     using System.Security.Permissions;
+#endif
 
     using SevenZip.Sdk;
     using SevenZip.Sdk.Compression.Lzma;
@@ -25,7 +27,7 @@ namespace SevenZip
     {
 #if UNMANAGED
 
-        #region Fields
+#region Fields
 
         private bool _compressingFilesOnDisk;
 
@@ -101,7 +103,7 @@ namespace SevenZip
         /// </summary>
         public bool FastCompression { get; set; }
 
-        #endregion
+#endregion
 
 #endif
         private static volatile int _lzmaDictionarySize = 1 << 22;
@@ -175,7 +177,7 @@ namespace SevenZip
 
 #if UNMANAGED
 
-        #region Private functions
+#region Private functions
 
         private IOutArchive MakeOutArchive(IInStream inArchiveStream)
         {
@@ -278,7 +280,7 @@ namespace SevenZip
                         throw new CompressionFailedException("Unfortunately, the creation of multi-volume non-7Zip archives is not implemented.");
                     }
 
-                    #region Check for "forbidden" parameters
+#region Check for "forbidden" parameters
 
                     if (CustomParameters.ContainsKey("x"))
                     {
@@ -304,16 +306,19 @@ namespace SevenZip
                         }
                     }
 
-                    #endregion
+#endregion
 
                     var names = new List<IntPtr>(2 + CustomParameters.Count);
                     var values = new List<PropVariant>(2 + CustomParameters.Count);
+
+#if NET45 || NETSTANDARD2_0
                     var sp = new SecurityPermission(SecurityPermissionFlag.UnmanagedCode);
                     sp.Demand();
+#endif
 
-                    #region Initialize compression properties
+#region Initialize compression properties
 
-                    names.Add(Marshal.StringToBSTR("x"));
+                        names.Add(Marshal.StringToBSTR("x"));
                     values.Add(new PropVariant());
 
                     if (_compressionMethod != CompressionMethod.Default)
@@ -333,19 +338,19 @@ namespace SevenZip
 
                     foreach (var pair in CustomParameters)
                     {
-                        #region Validate parameters against compression method.
+#region Validate parameters against compression method.
 
                         if (_compressionMethod != CompressionMethod.Ppmd && (pair.Key.Equals("mem") || pair.Key.Equals("o")))
                         {
                             ThrowException(null, new CompressionFailedException($"Parameter \"{pair.Key}\" is only valid with the PPMd compression method."));
                         }
 
-                        #endregion
+#endregion
 
                         names.Add(Marshal.StringToBSTR(pair.Key));
                         var pv = new PropVariant();
 
-                        #region List of parameters to cast as integers
+#region List of parameters to cast as integers
 
                         var integerParameters = new HashSet<string>
                         {
@@ -361,7 +366,7 @@ namespace SevenZip
                             "cp"
                         };
 
-                        #endregion
+#endregion
 
                         if (integerParameters.Contains(pair.Key))
                         {
@@ -377,9 +382,9 @@ namespace SevenZip
                         values.Add(pv);
                     }
 
-                    #endregion
+#endregion
 
-                    #region Set compression level
+#region Set compression level
 
                     var clpv = values[0];
                     clpv.VarType = VarEnum.VT_UI4;
@@ -420,9 +425,9 @@ namespace SevenZip
 
                     values[0] = clpv;
 
-                    #endregion
+#endregion
 
-                    #region Encrypt headers
+#region Encrypt headers
 
                     if (EncryptHeaders && _archiveFormat == OutArchiveFormat.SevenZip && !SwitchIsInCustomParameters("he"))
                     {
@@ -431,9 +436,9 @@ namespace SevenZip
                         values.Add(tmp);
                     }
 
-                    #endregion
+#endregion
 
-                    #region Zip Encryption
+#region Zip Encryption
 
                     if (_archiveFormat == OutArchiveFormat.Zip &&
                         ZipEncryptionMethod != ZipEncryptionMethod.ZipCrypto &&
@@ -450,7 +455,7 @@ namespace SevenZip
                         values.Add(tmp);
                     }
 
-                    #endregion
+#endregion
 
                     var namesHandle = GCHandle.Alloc(names.ToArray(), GCHandleType.Pinned);
                     var valuesHandle = GCHandle.Alloc(values.ToArray(), GCHandleType.Pinned);
@@ -697,9 +702,9 @@ namespace SevenZip
             }
         }
 
-        #endregion
+#endregion
 
-        #region GetArchiveUpdateCallback overloads
+#region GetArchiveUpdateCallback overloads
 
         /// <summary>
         /// Performs the common ArchiveUpdateCallback initialization.
@@ -866,9 +871,9 @@ namespace SevenZip
             return auc;
         }
 
-        #endregion
+#endregion
 
-        #region Service "Get" functions
+#region Service "Get" functions
 
         private void FreeCompressionCallback(ArchiveUpdateCallback callback)
         {
@@ -967,11 +972,11 @@ namespace SevenZip
                 : new ArchiveOpenCallback(_archiveName, Password);
         }
 
-        #endregion
+#endregion
 
-        #region Core public Members
+#region Core public Members
 
-        #region Events
+#region Events
 
         /// <summary>
         /// Occurs when the next file is going to be packed.
@@ -1001,7 +1006,7 @@ namespace SevenZip
         /// </summary>
         public event EventHandler<EventArgs> CompressionFinished;
 
-        #region Event proxies
+#region Event proxies
 
         /// <summary>
         /// Event proxy for FileCompressionStarted.
@@ -1043,11 +1048,11 @@ namespace SevenZip
             OnEvent(FilesFound, e, false);
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
 
         /// <summary>
         /// Gets or sets the archive format
@@ -1087,9 +1092,9 @@ namespace SevenZip
             set => _volumeSize = value > 0 ? value : 0;
         }
 
-        #endregion
+#endregion
 
-        #region CompressFiles overloads
+#region CompressFiles overloads
 
         /// <summary>
         /// Packs files into the archive.
@@ -1304,9 +1309,9 @@ namespace SevenZip
             ThrowUserException();
         }
 
-        #endregion
+#endregion
 
-        #region CompressDirectory overloads
+#region CompressDirectory overloads
 
         /// <summary>
         /// Packs all files in the specified directory.
@@ -1390,9 +1395,9 @@ namespace SevenZip
             CompressFilesEncrypted(archiveStream, commonRootLength, password, files.ToArray());
         }
 
-        #endregion
+#endregion
 
-        #region CompressFileDictionary overloads
+#region CompressFileDictionary overloads
 
         /// <summary>
         /// Packs the specified file dictionary.
@@ -1456,9 +1461,9 @@ namespace SevenZip
             CompressStreamDictionary(streamDict, archiveStream, password);
         }
 
-        #endregion
+#endregion
 
-        #region CompressStreamDictionary overloads
+#region CompressStreamDictionary overloads
 
         /// <summary>
         /// Packs the specified stream dictionary.
@@ -1586,9 +1591,9 @@ namespace SevenZip
             ThrowUserException();
         }
 
-        #endregion
+#endregion
 
-        #region CompressStream overloads
+#region CompressStream overloads
 
         /// <summary>
         /// Compresses the specified stream.
@@ -1641,9 +1646,9 @@ namespace SevenZip
             ThrowUserException();
         }
 
-        #endregion
+#endregion
 
-        #region ModifyArchive overloads
+#region ModifyArchive overloads
 
         /// <summary>
         /// Modifies the existing archive (renames files or deletes them).
@@ -1764,9 +1769,9 @@ namespace SevenZip
             ThrowUserException();
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
 #endif
 
@@ -1781,7 +1786,7 @@ namespace SevenZip
 
         internal static void WriteLzmaProperties(Encoder encoder)
         {
-            #region LZMA properties definition
+#region LZMA properties definition
 
             CoderPropId[] propIDs =
             {
@@ -1806,7 +1811,7 @@ namespace SevenZip
                 false
             };
 
-            #endregion
+#endregion
 
             encoder.SetCoderProperties(propIDs, properties);
         }

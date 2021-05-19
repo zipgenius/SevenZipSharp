@@ -2,9 +2,9 @@
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 		<id>Squid-Box.SevenZipSharp</id>
-		<version>1.4.1</version>
+		<version>1.0.0</version>
 		<authors>Joel Ahlgren</authors>
-		<summary>Managed 7-zip library written in C# (.NET 4.5 and .NET Standard 2.0) that provides data (self-)extraction and compression (all 7-zip formats are supported).</summary>
+		<summary>Managed 7-zip library written in C# that provides data (self-)extraction and compression (all 7-zip formats are supported).</summary>
 		<description>Wraps 7z.dll or any compatible one and makes use of LZMA SDK.</description>
 		<language>en-US</language>
 		<license type="expression">LGPL-3.0-only</license>
@@ -20,11 +20,16 @@
 				<dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
 				<dependency id="System.Security.Permissions" version="4.5.0" />
 			</group>
+			<group targetFramework="net5.0-windows">
+				<dependency id="System.Configuration.ConfigurationManager" version="4.5.0" />
+			</group>
 		</dependencies>
 	</metadata>
 	<files>
 		<file src="Stage\Release\netstandard2.0\SevenZipSharp.dll" target="lib\netstandard2.0" />
 		<file src="Stage\Release\netstandard2.0\SevenZipSharp.xml" target="lib\netstandard2.0" />
+		<file src="Stage\Release\net5.0-windows\SevenZipSharp.dll" target="lib\net5.0-windows" />
+		<file src="Stage\Release\net5.0-windows\SevenZipSharp.xml" target="lib\net5.0-windows" />
 		<file src="Stage\Release\net45\SevenZipSharp.dll" target="lib\net45" />
 		<file src="Stage\Release\net45\SevenZipSharp.xml" target="lib\net45" />
 		<file src="license" />

@@ -4,7 +4,9 @@ namespace SevenZip
     using System.Collections.Generic;
     using System.Configuration;
     using System.Diagnostics;
+#if NET45 || NETSTANDARD2_0
     using System.Security.Permissions;
+#endif
     using System.IO;
     using System.Reflection;
     using System.Runtime.InteropServices;
@@ -233,9 +235,9 @@ namespace SevenZip
 
                     _features = LibraryFeature.None;
 
-                    #region Benchmark
+#region Benchmark
 
-                    #region Extraction features
+#region Extraction features
 
                     using (var outStream = new MemoryStream())
                     {
@@ -267,9 +269,9 @@ namespace SevenZip
                         ExtractionBenchmark("Test.zip", outStream, ref _features, LibraryFeature.ExtractZip);
                     }
 
-                    #endregion
+#endregion
 
-                    #region Compression features
+#region Compression features
 
                     using (var inStream = new MemoryStream())
                     {
@@ -323,9 +325,9 @@ namespace SevenZip
                         }
                     }
 
-                    #endregion
+#endregion
 
-                    #endregion
+#endregion
 
                     if (ModifyCapable && (_features.Value & LibraryFeature.Compress7z) != 0)
                     {
@@ -344,65 +346,66 @@ namespace SevenZip
         /// <param name="format">Archive format</param>
         public static void FreeLibrary(object user, Enum format)
         {
+#if NET45 || NETSTANDARD2_0
             var sp = new SecurityPermission(SecurityPermissionFlag.UnmanagedCode);
             sp.Demand();
-
+#endif
             lock (_syncRoot)
 			{
                 if (_modulePtr != IntPtr.Zero)
-            {
-                if (format is InArchiveFormat archiveFormat)
                 {
-                    if (_inArchives != null && _inArchives.ContainsKey(user) &&
-                        _inArchives[user].ContainsKey(archiveFormat) &&
-                        _inArchives[user][archiveFormat] != null)
+                    if (format is InArchiveFormat archiveFormat)
                     {
-                        try
-                        {                            
-                            Marshal.ReleaseComObject(_inArchives[user][archiveFormat]);
-                        }
-                        catch (InvalidComObjectException) {}
-                        _inArchives[user].Remove(archiveFormat);
-                        _totalUsers--;
-                        if (_inArchives[user].Count == 0)
+                        if (_inArchives != null && _inArchives.ContainsKey(user) &&
+                            _inArchives[user].ContainsKey(archiveFormat) &&
+                            _inArchives[user][archiveFormat] != null)
                         {
-                            _inArchives.Remove(user);
+                            try
+                            {                            
+                                Marshal.ReleaseComObject(_inArchives[user][archiveFormat]);
+                            }
+                            catch (InvalidComObjectException) {}
+                            _inArchives[user].Remove(archiveFormat);
+                            _totalUsers--;
+                            if (_inArchives[user].Count == 0)
+                            {
+                                _inArchives.Remove(user);
+                            }
+                        }
+                    }
+
+                    if (format is OutArchiveFormat outArchiveFormat)
+                    {
+                        if (_outArchives != null && _outArchives.ContainsKey(user) &&
+                            _outArchives[user].ContainsKey(outArchiveFormat) &&
+                            _outArchives[user][outArchiveFormat] != null)
+                        {
+                            try
+                            {
+                                Marshal.ReleaseComObject(_outArchives[user][outArchiveFormat]);
+                            }
+                            catch (InvalidComObjectException) {}
+                            _outArchives[user].Remove(outArchiveFormat);
+                            _totalUsers--;
+                            if (_outArchives[user].Count == 0)
+                            {
+                                _outArchives.Remove(user);
+                            }
+                        }
+                    }
+
+                    if ((_inArchives == null || _inArchives.Count == 0) && (_outArchives == null || _outArchives.Count == 0))
+                    {
+                        _inArchives = null;
+                        _outArchives = null;
+
+                        if (_totalUsers == 0)
+                        {
+                            NativeMethods.FreeLibrary(_modulePtr);
+                            _modulePtr = IntPtr.Zero;
                         }
                     }
                 }
-
-                if (format is OutArchiveFormat outArchiveFormat)
-                {
-                    if (_outArchives != null && _outArchives.ContainsKey(user) &&
-                        _outArchives[user].ContainsKey(outArchiveFormat) &&
-                        _outArchives[user][outArchiveFormat] != null)
-                    {
-                        try
-                        {
-                            Marshal.ReleaseComObject(_outArchives[user][outArchiveFormat]);
-                        }
-                        catch (InvalidComObjectException) {}
-                        _outArchives[user].Remove(outArchiveFormat);
-                        _totalUsers--;
-                        if (_outArchives[user].Count == 0)
-                        {
-                            _outArchives.Remove(user);
-                        }
-                    }
-                }
-
-                if ((_inArchives == null || _inArchives.Count == 0) && (_outArchives == null || _outArchives.Count == 0))
-                {
-                    _inArchives = null;
-                    _outArchives = null;
-
-                    if (_totalUsers == 0)
-                    {
-                        NativeMethods.FreeLibrary(_modulePtr);
-                        _modulePtr = IntPtr.Zero;
-                    }
-                }
-            }
 			}
         }
 
@@ -417,8 +420,10 @@ namespace SevenZip
             {
                 if (_inArchives[user][format] == null)
                 {
+#if NET45 || NETSTANDARD2_0
                     var sp = new SecurityPermission(SecurityPermissionFlag.UnmanagedCode);
                     sp.Demand();
+#endif
 
                     if (_modulePtr == IntPtr.Zero)
                     {
@@ -472,32 +477,34 @@ namespace SevenZip
             {
                 if (_outArchives[user][format] == null)
                 {
+#if NET45 || NETSTANDARD2_0
                     var sp = new SecurityPermission(SecurityPermissionFlag.UnmanagedCode);
                     sp.Demand();
+#endif
                     if (_modulePtr == IntPtr.Zero)
                     {
                         throw new SevenZipLibraryException();
                     }
+
                     var createObject = (NativeMethods.CreateObjectDelegate)
                         Marshal.GetDelegateForFunctionPointer(
                             NativeMethods.GetProcAddress(_modulePtr, "CreateObject"),
                             typeof(NativeMethods.CreateObjectDelegate));
-                    object result;
-                    Guid interfaceId = typeof(IOutArchive).GUID;
-
-                    Guid classID = Formats.OutFormatGuids[format];
+                    var interfaceId = typeof(IOutArchive).GUID;
+                    
 
                     try
                     {
-                        createObject(ref classID, ref interfaceId, out result);
+                        var classId = Formats.OutFormatGuids[format];
+                        createObject(ref classId, ref interfaceId, out var result);
+                        
+                        InitUserOutFormat(user, format);
+                        _outArchives[user][format] = result as IOutArchive;
                     }
                     catch (Exception)
                     {
                         throw new SevenZipLibraryException("Your 7-zip library does not support this archive type.");
                     }
-
-                    InitUserOutFormat(user, format);
-                    _outArchives[user][format] = result as IOutArchive;
                 }
 
                 return _outArchives[user][format];
