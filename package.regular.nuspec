@@ -11,8 +11,7 @@
 		<projectUrl>https://github.com/squid-box/SevenZipSharp</projectUrl>
 		<tags>7z sevenzip sevenzipsharp 7-zip</tags>
 		<releaseNotes>
-			Improved error messages.
-			Added documentation to NuGet package.
+			
 		</releaseNotes>
 		<dependencies>
 			<group targetFramework="net45" />
