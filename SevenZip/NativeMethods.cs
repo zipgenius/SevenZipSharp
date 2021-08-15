@@ -6,15 +6,11 @@ namespace SevenZip
 #if UNMANAGED
     internal static class NativeMethods
     {
-        #region Delegates
-
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int CreateObjectDelegate(
             [In] ref Guid classID,
             [In] ref Guid interfaceID,
             [MarshalAs(UnmanagedType.Interface)] out object outObject);
-
-        #endregion
 
         [DllImport("kernel32.dll", BestFitMapping = false, ThrowOnUnmappableChar = true)]
         public static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string fileName);
@@ -29,6 +25,7 @@ namespace SevenZip
         public static T SafeCast<T>(PropVariant var, T def)
         {
             object obj;
+            
             try
             {
                 obj = var.Object;
@@ -37,10 +34,12 @@ namespace SevenZip
             {
                 return def;
             }
-            if (obj != null && obj is T)
+
+            if (obj is T expected)
             {
-                return (T) obj;
-            }            
+                return expected;
+            }
+            
             return def;
         }
     }
