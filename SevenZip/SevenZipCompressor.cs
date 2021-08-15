@@ -338,37 +338,19 @@ namespace SevenZip
 
                     foreach (var pair in CustomParameters)
                     {
-#region Validate parameters against compression method.
+                        #region Validate parameters against compression method.
 
                         if (_compressionMethod != CompressionMethod.Ppmd && (pair.Key.Equals("mem") || pair.Key.Equals("o")))
                         {
                             ThrowException(null, new CompressionFailedException($"Parameter \"{pair.Key}\" is only valid with the PPMd compression method."));
                         }
 
-#endregion
+                        #endregion
 
                         names.Add(Marshal.StringToBSTR(pair.Key));
                         var pv = new PropVariant();
 
-#region List of parameters to cast as integers
-
-                        var integerParameters = new HashSet<string>
-                        {
-                            "fb",
-                            "pass",
-                            "o",
-                            "yx",
-                            "a",
-                            "mc",
-                            "lc",
-                            "lp",
-                            "pb",
-                            "cp"
-                        };
-
-#endregion
-
-                        if (integerParameters.Contains(pair.Key))
+                        if (pair.Value.All(char.IsDigit))
                         {
                             pv.VarType = VarEnum.VT_UI4;
                             pv.UInt32Value = Convert.ToUInt32(pair.Value, CultureInfo.InvariantCulture);
