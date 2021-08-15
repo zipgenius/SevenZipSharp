@@ -11,7 +11,10 @@
 		<projectUrl>https://github.com/squid-box/SevenZipSharp</projectUrl>
 		<tags>7z sevenzip sevenzipsharp 7-zip</tags>
 		<releaseNotes>
-			
+			Added new NuGet package excluding self-extraction functionality (Squid-Box.SevenZipSharp.Lite).
+			Added .NET Core 3.1 target, to prepare for future fixes.
+			Fixed issue with custom compression parameters for multithreading.
+			Fixed issue with exception handling in asynchronous compression and extraction methods, thanks to GitHub user kikijiki.
 		</releaseNotes>
 		<dependencies>
 			<group targetFramework="net45" />
