@@ -1,6 +1,10 @@
 # Changelog
 
-## 1.4.0 (2021-04-XX)
+## 1.5.0 (2021-05-xx)
+- Added .NET 5.0 (Windows only) variant.
+- Added separate NuGet (Lite) excluding creation of self-extracting archives.
+
+## 1.4.0 (2021-04-12)
 - Added a work-around to allow UWP apps to use SevenZipSharp in Release builds.
 - Fix issue limiting split archive volume size to 2GB.
 

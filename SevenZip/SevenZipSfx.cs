@@ -1,5 +1,6 @@
 ﻿namespace SevenZip
 {
+#if SFX
     using System;
     using System.Collections.Generic;
     using System.Globalization;
@@ -68,7 +69,6 @@
             }
         }
 
-        private SfxModule _module = SfxModule.Default;
         private string _moduleFileName;
         private Dictionary<SfxModule, List<string>> _sfxCommands;
 
@@ -77,7 +77,7 @@
         /// </summary>
         public SevenZipSfx()
         {
-            _module = SfxModule.Default;
+            SfxModule = SfxModule.Default;
             CommonInit();
         }
 
@@ -92,7 +92,7 @@
                 throw new ArgumentException("You must specify the custom module executable.", nameof(module));
             }
 
-            _module = module;
+            SfxModule = module;
             CommonInit();
         }
 
@@ -102,7 +102,7 @@
         /// <param name="moduleFileName"></param>
         public SevenZipSfx(string moduleFileName)
         {
-            _module = SfxModule.Custom;
+            SfxModule = SfxModule.Custom;
             ModuleFileName = moduleFileName;
             CommonInit();
         }
@@ -110,7 +110,7 @@
         /// <summary>
         /// Gets the sfx module type.
         /// </summary>
-        public SfxModule SfxModule => _module;
+        public SfxModule SfxModule { get; private set; }
 
         /// <summary>
         /// Gets or sets the custom sfx module file name
@@ -127,14 +127,14 @@
                 }
 
                 _moduleFileName = value;
-                _module = SfxModule.Custom;
+                SfxModule = SfxModule.Custom;
                 var sfxName = Path.GetFileName(value);
 
                 foreach (var mod in SfxSupportedModuleNames.Keys)
                 {
                     if (SfxSupportedModuleNames[mod].Contains(sfxName))
                     {
-                        _module = mod;
+                        SfxModule = mod;
                     }
                 }
             }
@@ -178,7 +178,7 @@
         /// <param name="xmlDefinitions">The resource name for xml definitions</param>
         private void LoadCommandsFromResource(string xmlDefinitions)
         {
-            using (Stream cfg = Assembly.GetExecutingAssembly().GetManifestResourceStream(
+            using (var cfg = Assembly.GetExecutingAssembly().GetManifestResourceStream(
                 GetResourceString(xmlDefinitions + ".xml")))
             {
                 if (cfg == null)
@@ -186,7 +186,7 @@
                     throw new SevenZipSfxValidationException("The configuration \"" + xmlDefinitions +
                                                              "\" does not exist.");
                 }
-                using (Stream schm = Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                using (var schm = Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     GetResourceString(xmlDefinitions + ".xsd")))
                 {
                     if (schm == null)
@@ -195,18 +195,18 @@
                                                                  "\" does not exist.");
                     }
                     var sc = new XmlSchemaSet();
-                    using (XmlReader scr = XmlReader.Create(schm))
+                    using (var scr = XmlReader.Create(schm))
                     {
                         sc.Add(null, scr);
                         var settings = new XmlReaderSettings {ValidationType = ValidationType.Schema, Schemas = sc};
-                        string validationErrors = "";
+                        var validationErrors = "";
                         settings.ValidationEventHandler +=
                             ((s, t) =>
                             {
                                 validationErrors += String.Format(CultureInfo.InvariantCulture, "[{0}]: {1}\n",
                                                                   t.Severity.ToString(), t.Message);
                             });
-                        using (XmlReader rdr = XmlReader.Create(cfg, settings))
+                        using (var rdr = XmlReader.Create(cfg, settings))
                         {
                             _sfxCommands = new Dictionary<SfxModule, List<string>>();
                             rdr.Read();
@@ -218,7 +218,7 @@
                             rdr.Read();
                             do
                             {
-                                SfxModule mod = GetModuleByName(rdr["modules"]);
+                                var mod = GetModuleByName(rdr["modules"]);
                                 rdr.ReadStartElement("config");
                                 rdr.Read();
                                 if (rdr.Name == "id")
@@ -240,7 +240,7 @@
                                 }
                             } while (rdr.Name == "config");
                         }
-                        if (!String.IsNullOrEmpty(validationErrors))
+                        if (!string.IsNullOrEmpty(validationErrors))
                         {
                             throw new SevenZipSfxValidationException(
                                 "\n" + validationErrors.Substring(0, validationErrors.Length - 1));
@@ -257,30 +257,37 @@
         /// <param name="settings">The sfx settings dictionary to validate.</param>
         private void ValidateSettings(SfxSettings settings)
         {
-            if (_module == SfxModule.Custom)
+            if (SfxModule == SfxModule.Custom)
             {
                 return;
             }
-            List<string> commands = _sfxCommands[_module];
+
+            var commands = _sfxCommands[SfxModule];
+            
             if (commands == null)
             {
                 return;
             }
+            
             var invalidCommands = new List<string>();
-            foreach (string command in settings.Keys)
+            
+            foreach (var command in settings.Keys)
             {
                 if (!commands.Contains(command))
                 {
                     invalidCommands.Add(command);
                 }
             }
+            
             if (invalidCommands.Count > 0)
             {
                 var invalidText = new StringBuilder("\nInvalid commands:\n");
-                foreach (string str in invalidCommands)
+                
+                foreach (var str in invalidCommands)
                 {
                     invalidText.Append(str);
                 }
+                
                 throw new SevenZipSfxValidationException(invalidText.ToString());
             }
         }
@@ -293,23 +300,26 @@
         private static Stream GetSettingsStream(SfxSettings settings)
         {
             var ms = new MemoryStream();
-            byte[] buf = Encoding.UTF8.GetBytes(@";!@Install@!UTF-8!" + '\n');
+            var buf = Encoding.UTF8.GetBytes(@";!@Install@!UTF-8!" + '\n');
             ms.Write(buf, 0, buf.Length);
-            foreach (string command in settings.Keys)
+            
+            foreach (var command in settings.Keys)
             {
                 buf =
                     Encoding.UTF8.GetBytes(String.Format(CultureInfo.InvariantCulture, "{0}=\"{1}\"\n", command,
                                                          settings[command]));
                 ms.Write(buf, 0, buf.Length);
             }
+           
             buf = Encoding.UTF8.GetBytes(@";!@InstallEnd@!");
             ms.Write(buf, 0, buf.Length);
+            
             return ms;
         }
 
         private SfxSettings GetDefaultSettings()
         {
-            switch (_module)
+            switch (SfxModule)
             {
                 default:
                     return null;
@@ -334,7 +344,7 @@
         /// Writes the whole to the other one.
         /// </summary>
         /// <param name="src">The source stream to read from.</param>
-        /// <param name="dest">The destination stream to wrie to.</param>
+        /// <param name="dest">The destination stream to write to.</param>
         private static void WriteStream(Stream src, Stream dest)
         {
             if (src == null)
@@ -350,6 +360,7 @@
             src.Seek(0, SeekOrigin.Begin);
             var buf = new byte[32768];
             int bytesRead;
+            
             while ((bytesRead = src.Read(buf, 0, buf.Length)) > 0)
             {
                 dest.Write(buf, 0, bytesRead);
@@ -408,12 +419,12 @@
 
             ValidateSettings(settings);
 
-            using (var sfx = Assembly.GetExecutingAssembly().GetManifestResourceStream(GetResourceString(SfxSupportedModuleNames[_module][0])))
+            using (var sfx = Assembly.GetExecutingAssembly().GetManifestResourceStream(GetResourceString(SfxSupportedModuleNames[SfxModule][0])))
             {
                 WriteStream(sfx, sfxStream);
             }
 
-            if (_module == SfxModule.Custom || _sfxCommands[_module] != null)
+            if (SfxModule == SfxModule.Custom || _sfxCommands[SfxModule] != null)
             {
                 using (var set = GetSettingsStream(settings))
                 {
@@ -490,4 +501,5 @@
             }
         }
     }
+#endif
 }
