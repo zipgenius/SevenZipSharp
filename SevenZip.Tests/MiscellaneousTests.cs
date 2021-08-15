@@ -15,20 +15,21 @@
         [Test]
         public void SerializationTest()
         {
-            var ex = new ArgumentException("blahblah");
-            var bf = new BinaryFormatter();
+            var argumentException = new ArgumentException("blahblah");
+            var binaryFormatter = new BinaryFormatter();
 
             using (var ms = new MemoryStream())
             {
                 using (var fileStream = File.Create(TemporaryFile))
                 {
-                    bf.Serialize(ms, ex);
-                    SevenZipCompressor cmpr = new SevenZipCompressor();
-                    cmpr.CompressStream(ms, fileStream);
+                    binaryFormatter.Serialize(ms, argumentException);
+                    var compressor = new SevenZipCompressor();
+                    compressor.CompressStream(ms, fileStream);
                 }
             }
         }
 
+#if SFX
         [Test]
         public void CreateSfxArchiveTest([Values]SfxModule sfxModule)
         {
@@ -59,6 +60,7 @@
                 process?.Kill();
             });
         }
+#endif
 
         [Test]
         public void LzmaEncodeDecodeTest()

@@ -212,6 +212,9 @@ namespace SevenZip
 
                         switch (hresult)
                         {
+                            case -2146233067:
+                                exception = new SevenZipException("Operation is not supported. (0x80131515: E_NOTSUPPORTED)");
+                                break;
                             case -2147024784:
                                 exception = new SevenZipException("There is not enough space on the disk. (0x80070070: ERROR_DISK_FULL)");
                                 break;
@@ -223,6 +226,12 @@ namespace SevenZip
                                 break;
                             case -2147024809:
                                 exception = new SevenZipException("Invalid arguments provided. (0x80070057: E_INVALIDARG)");
+                                break;
+                            case -2147467263:
+                                exception = new SevenZipException("Functionality not implemented. (0x80004001: E_NOTIMPL)");
+                                break;
+                            case -2147024891:
+                                exception = new SevenZipException("Access is denied. (0x80070005: E_ACCESSDENIED)");
                                 break;
                             default:
                                 exception = new SevenZipException(

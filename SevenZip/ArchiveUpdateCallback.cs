@@ -681,10 +681,10 @@ namespace SevenZip
                         AddException(new ExtractionFailedException("File is corrupted. Crc check has failed."));
                         break;
                     case OperationResult.DataError:
-                        AddException(new ExtractionFailedException("File is corrupted. Data error has occured."));
+                        AddException(new ExtractionFailedException("File is corrupted. Data error has occurred."));
                         break;
                     case OperationResult.UnsupportedMethod:
-                        AddException(new ExtractionFailedException("Unsupported method error has occured."));
+                        AddException(new ExtractionFailedException("Unsupported method error has occurred."));
                         break;
                     case OperationResult.Unavailable:
                         AddException(new ExtractionFailedException("File is unavailable."));
@@ -711,23 +711,25 @@ namespace SevenZip
             }
             if (_fileStream != null)
             {
-                
-                    _fileStream.BytesRead -= IntEventArgsHandler;
-                    //Specific Zip implementation - can not Dispose files for Zip.
-                    if (_compressor.ArchiveFormat != OutArchiveFormat.Zip)
+                _fileStream.BytesRead -= IntEventArgsHandler;
+
+                //Specific Zip implementation - can not Dispose files for Zip.
+                if (_compressor.ArchiveFormat != OutArchiveFormat.Zip)
+                {
+                    try
                     {
-                        try
-                        {
-                            _fileStream.Dispose();                            
-                        }
-                        catch (ObjectDisposedException) {}
+                        _fileStream.Dispose();                            
                     }
-                    else
-                    {
-                        _wrappersToDispose.Add(_fileStream);
-                    }                                
+                    catch (ObjectDisposedException) {}
+                }
+                else
+                {
+                    _wrappersToDispose.Add(_fileStream);
+                }                                
+                
                 _fileStream = null;
             }
+            
             OnFileCompressionFinished(EventArgs.Empty);
         }
 

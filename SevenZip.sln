@@ -10,24 +10,36 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{043464C6-413E-4D0F-8A43-B23F674B1804}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
+		changelog.md = changelog.md
 		license = license
 		nuget.config = nuget.config
-		package.nuspec = package.nuspec
+		package.lite.nuspec = package.lite.nuspec
+		package.regular.nuspec = package.regular.nuspec
 		readme.md = readme.md
 	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		LiteDebug|Any CPU = LiteDebug|Any CPU
+		LiteRelease|Any CPU = LiteRelease|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4960DD14-3431-47EC-B9D9-9D2730A98DC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4960DD14-3431-47EC-B9D9-9D2730A98DC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4960DD14-3431-47EC-B9D9-9D2730A98DC3}.LiteDebug|Any CPU.ActiveCfg = LiteDebug|Any CPU
+		{4960DD14-3431-47EC-B9D9-9D2730A98DC3}.LiteDebug|Any CPU.Build.0 = LiteDebug|Any CPU
+		{4960DD14-3431-47EC-B9D9-9D2730A98DC3}.LiteRelease|Any CPU.ActiveCfg = LiteRelease|Any CPU
+		{4960DD14-3431-47EC-B9D9-9D2730A98DC3}.LiteRelease|Any CPU.Build.0 = LiteRelease|Any CPU
 		{4960DD14-3431-47EC-B9D9-9D2730A98DC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4960DD14-3431-47EC-B9D9-9D2730A98DC3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{67192E62-C7FE-485F-BEC4-05734A943FAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{67192E62-C7FE-485F-BEC4-05734A943FAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67192E62-C7FE-485F-BEC4-05734A943FAA}.LiteDebug|Any CPU.ActiveCfg = LiteDebug|Any CPU
+		{67192E62-C7FE-485F-BEC4-05734A943FAA}.LiteDebug|Any CPU.Build.0 = LiteDebug|Any CPU
+		{67192E62-C7FE-485F-BEC4-05734A943FAA}.LiteRelease|Any CPU.ActiveCfg = LiteRelease|Any CPU
+		{67192E62-C7FE-485F-BEC4-05734A943FAA}.LiteRelease|Any CPU.Build.0 = LiteRelease|Any CPU
 		{67192E62-C7FE-485F-BEC4-05734A943FAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67192E62-C7FE-485F-BEC4-05734A943FAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
