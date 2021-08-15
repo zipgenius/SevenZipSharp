@@ -212,6 +212,9 @@ namespace SevenZip
 
                         switch (hresult)
                         {
+                            case -2146233067:
+                                exception = new SevenZipException("Operation is not supported. (0x80131515: E_NOTSUPPORTED)");
+                                break;
                             case -2147024784:
                                 exception = new SevenZipException("There is not enough space on the disk. (0x80070070: ERROR_DISK_FULL)");
                                 break;
