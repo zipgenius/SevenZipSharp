@@ -241,10 +241,8 @@ namespace SevenZip
         /// <param name="archiveStream">The stream to read the archive from.</param>
         /// <param name="password">Password for an encrypted archive.</param>
         /// <remarks>The archive format is guessed by the signature.</remarks>
-        public SevenZipExtractor(Stream archiveStream, string password)
-            : base(password)
+        public SevenZipExtractor(Stream archiveStream, string password) : this(archiveStream, password, false)
         {
-            Init(archiveStream);
         }
 
         /// <summary>
@@ -252,13 +250,26 @@ namespace SevenZip
         /// </summary>
         /// <param name="archiveStream">The stream to read the archive from.</param>
         /// <param name="password">Password for an encrypted archive.</param>
+        /// <param name="leaveOpen">Leaves the base stream open.</param>
+        /// <remarks>The archive format is guessed by the signature.</remarks>
+        public SevenZipExtractor(Stream archiveStream, string password, bool leaveOpen) : this(archiveStream, password, leaveOpen, (InArchiveFormat)(-1))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of SevenZipExtractor class.
+        /// </summary>
+        /// <param name="archiveStream">The stream to read the archive from.</param>
+        /// <param name="password">Password for an encrypted archive.</param>
+        /// <param name="leaveOpen">Leaves the base stream open.</param>
         /// <param name="format">Manual archive format setup. You SHOULD NOT normally specify it this way.
         /// Instead, use SevenZipExtractor(Stream archiveStream, string password), that constructor
         /// automatically detects the archive format.</param>
-        public SevenZipExtractor(Stream archiveStream, string password, InArchiveFormat format)
+        public SevenZipExtractor(Stream archiveStream, string password, bool leaveOpen, InArchiveFormat format)
             : base(password)
         {
             _format = format;
+            _leaveOpen = leaveOpen;
             Init(archiveStream);
         }
 
