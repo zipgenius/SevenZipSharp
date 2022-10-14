@@ -790,7 +790,7 @@ namespace SevenZip
                 _openCallback = null;
             }
 
-            if (_archiveStream != null)
+            if (_archiveStream != null && !_leaveOpen)
             {
                 if (_archiveStream is IDisposable)
                 {
