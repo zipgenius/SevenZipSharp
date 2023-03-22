@@ -2,10 +2,9 @@ This is a fork from [tomap's fork](https://github.com/tomap/SevenZipSharp) of th
 
 ## Continuous Integration
 
-|   Branch  | NuGet    | Lite NuGet |
-|-----------|----------|-----------|-------|------------|
-| master    | [![NuGet Badge](https://buildstats.info/nuget/Squid-Box.SevenZipSharp)](https://www.nuget.org/packages/Squid-Box.SevenZipSharp/) | [![NuGet Badge](https://buildstats.info/nuget/Squid-Box.SevenZipSharp.Lite)](https://www.nuget.org/packages/Squid-Box.SevenZipSharp.Lite/) |
-| dev | 
+| Squid-Box.SevenZipSharp                                                                                                          | Squid-Box.SevenZipSharp.Lite                                                                                                               |
+|----------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| [![NuGet Badge](https://buildstats.info/nuget/Squid-Box.SevenZipSharp)](https://www.nuget.org/packages/Squid-Box.SevenZipSharp/) | [![NuGet Badge](https://buildstats.info/nuget/Squid-Box.SevenZipSharp.Lite)](https://www.nuget.org/packages/Squid-Box.SevenZipSharp.Lite/) |
 
 ## Changes from original project
 As required by the GNU GPL 3.0 license, here's a rough list of what has changed since the original CodePlex project, including changes made in tomap's fork.
