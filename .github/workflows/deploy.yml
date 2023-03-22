@@ -3,7 +3,7 @@ on:
     branches: [ "master" ]
 
 env:
-  VERSION: '1.5.1.${{ github.run_number }}'
+  VERSION: '1.5.2.${{ github.run_number }}'
 
 jobs:
   build:
@@ -23,13 +23,13 @@ jobs:
  
     - name: Compile solution
       run: |
-        dotnet build -c Release /p:AssemblyVersion=$env:VERSION /p:Version=$env:VERSION
-        dotnet build -c LiteRelease /p:AssemblyVersion=$env:VERSION /p:Version=$env:VERSION
+        dotnet build -c Release /p:AssemblyVersion=${{ env.VERSION }} /p:Version=${{ env.VERSION }}
+        dotnet build -c LiteRelease /p:AssemblyVersion=${{ env.VERSION }} /p:Version=${{ env.VERSION }}
       
     - name: Pack NuGets
       run: |
-        nuget pack package.regular.nuspec -version $env:VERSION
-        nuget pack package.lite.nuspec -version $env:VERSION
+        nuget pack package.regular.nuspec -version ${{ env.VERSION }}
+        nuget pack package.lite.nuspec -version ${{ env.VERSION }}
 
     - name: Push NuGet packages
       run: nuget push Squid-Box.SevenZipSharp*.nupkg -ApiKey ${{ secrets.NUGET_API_KEY }} -Source https://api.nuget.org/v3/index.json

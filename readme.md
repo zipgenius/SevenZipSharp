@@ -9,11 +9,13 @@ This is a fork from [tomap's fork](https://github.com/tomap/SevenZipSharp) of th
 ## Changes from original project
 As required by the GNU GPL 3.0 license, here's a rough list of what has changed since the original CodePlex project, including changes made in tomap's fork.
 
-* Target .NET framework changed from 2.0 to .NET 4.5, .NET Core 3.1 and .NET Standard 2.0 (ie. .NET Framework 4.5+, .Net Core 2.0+, Mono 5.4+, UWP 10.0.16299+, Unity 2018.1+).
-* Produces two multi-framework NuGet packages, one full-feature package and a `Lite` variant without SFX support (and significantly smaller size).
+* Target .NET version changed from .NET Framework 2.0 to .NET Standard 2.0, .NET Framework 4.7.2 and .NET Core 3.1.
+* Produces two NuGet packages, one full-feature package and a `Lite` variant without SFX support (and significantly smaller size).
 * Continous Integration added, both building and deploying.
 * Tests re-written to NUnit 3 test cases.
 * General code cleanup.
+
+As well as a number of improvements and bug fixes.
 
 -------------------------------------------------------------
 
