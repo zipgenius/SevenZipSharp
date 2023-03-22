@@ -357,5 +357,25 @@
 
             Assert.IsTrue(File.Exists(TemporaryFile));
         }
+
+        [Test]
+        public void AppendToArchiveWithEncryptedHeadersTest()
+        {
+            var compressor = new SevenZipCompressor()
+            {
+                ArchiveFormat = OutArchiveFormat.SevenZip,
+                CompressionMethod = CompressionMethod.Lzma2,
+                CompressionLevel = CompressionLevel.Normal,
+                EncryptHeaders = true,
+            };
+            compressor.CompressDirectory(@"TestData", TemporaryFile, "password");
+
+            compressor = new SevenZipCompressor
+            {
+                CompressionMode = CompressionMode.Append
+            };
+
+            compressor.CompressFilesEncrypted(TemporaryFile, "password", @"TestData\zip.zip");
+        }
     }
 }
