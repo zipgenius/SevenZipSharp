@@ -1866,7 +1866,7 @@ namespace SevenZip
         /// <summary>
         /// Check and update password in SevenZipCompressor
         /// </summary>
-        /// <param name="password"></param>
+        /// <param name="password">The password to use.</param>
         private void UpdateCompressorPassword(string password)
         {
             if (!string.IsNullOrEmpty(password) && string.IsNullOrEmpty(Password))
