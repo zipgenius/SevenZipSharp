@@ -274,19 +274,20 @@ namespace SevenZip
 
         protected static string VolumeNumber(int num)
         {
+            string prefix;
             if (num < 10)
             {
-                return ".00" + num.ToString(CultureInfo.InvariantCulture);
+                prefix = ".00";
             }
-            if (num > 9 && num < 100)
+            else if (num < 100)
             {
-                return ".0" + num.ToString(CultureInfo.InvariantCulture);
+                prefix = ".0";
             }
-            if (num > 99 && num < 1000)
+            else
             {
-                return "." + num.ToString(CultureInfo.InvariantCulture);
+                prefix = ".";
             }
-            return String.Empty;
+            return prefix + num.ToString(CultureInfo.InvariantCulture);
         }
 
         private int StreamNumberByOffset(long offset)
@@ -304,9 +305,20 @@ namespace SevenZip
 
         public void Seek(long offset, SeekOrigin seekOrigin, IntPtr newPosition)
         {
-            long absolutePosition = (seekOrigin == SeekOrigin.Current)
-                                        ? Position + offset
-                                        : offset;
+            long absolutePosition;
+            switch (seekOrigin) {
+                case SeekOrigin.Begin:
+                    absolutePosition = offset;
+                    break;
+                case SeekOrigin.Current:
+                    absolutePosition = Position + offset;
+                    break;
+                case SeekOrigin.End:
+                    absolutePosition = Length + offset;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(seekOrigin));
+            }
             CurrentStream = StreamNumberByOffset(absolutePosition);
             long delta = Streams[CurrentStream].Seek(
                 absolutePosition - StreamOffsets[CurrentStream].Key, SeekOrigin.Begin);
@@ -335,7 +347,7 @@ namespace SevenZip
             int i = 0;
             while (File.Exists(fileName))
             {
-                Streams.Add(new FileStream(fileName, FileMode.Open));
+                Streams.Add(new FileStream(fileName, FileMode.Open, FileAccess.Read));
                 long length = Streams[i].Length;
                 StreamOffsets.Add(i++, new KeyValuePair<long, long>(StreamLength, StreamLength + length));
                 StreamLength += length;
