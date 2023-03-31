@@ -118,7 +118,7 @@ namespace SevenZip
 
             try
             {
-                _inStream = new ArchiveEmulationStreamProxy(stream, _offset);
+                _inStream = new ArchiveEmulationStreamProxy(stream, _offset, _leaveOpen);
                 _packedSize = stream.Length;
                 _archive = SevenZipLibraryManager.InArchive(_format, this);
             }
@@ -137,7 +137,7 @@ namespace SevenZip
 
                     try
                     {
-                        _inStream = new ArchiveEmulationStreamProxy(stream, _offset);
+                        _inStream = new ArchiveEmulationStreamProxy(stream, _offset, _leaveOpen);
                         _packedSize = stream.Length;
                         _archive = SevenZipLibraryManager.InArchive(_format, this);
                     }
@@ -413,10 +413,11 @@ namespace SevenZip
         {
             if (_archiveStream != null)
             {
-                if (_archiveStream is DisposeVariableWrapper)
+                if (_archiveStream is DisposeVariableWrapper wrapper)
                 {
-                    (_archiveStream as DisposeVariableWrapper).DisposeStream = dispose;
+                    wrapper.DisposeStream = dispose;
                 }
+
                 return _archiveStream;
             }
 
@@ -432,13 +433,13 @@ namespace SevenZip
                     _archiveStream = new InStreamWrapper(
                         new ArchiveEmulationStreamProxy(new FileStream(
                             _fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
-                            _offset),
+                            _offset, _leaveOpen),
                         dispose);
                 }
                 else
                 {
                     _archiveStream = new InMultiStreamWrapper(_fileName, dispose);
-                    _packedSize = (_archiveStream as InMultiStreamWrapper).Length;
+                    _packedSize = (_archiveStream as InMultiStreamWrapper)?.Length;
                 }
             }
 
@@ -792,16 +793,16 @@ namespace SevenZip
 
             if (_archiveStream != null && !_leaveOpen)
             {
-                if (_archiveStream is IDisposable)
+                if (_archiveStream is IDisposable disposable)
                 {
                     try
                     {
-                        if (_archiveStream is DisposeVariableWrapper)
+                        if (disposable is DisposeVariableWrapper wrapper)
                         {
-                            (_archiveStream as DisposeVariableWrapper).DisposeStream = true;
+                            wrapper.DisposeStream = true;
                         }
 
-                        (_archiveStream as IDisposable).Dispose();
+                        disposable.Dispose();
                     }
                     catch (ObjectDisposedException) { }
                     _archiveStream = null;
@@ -827,7 +828,6 @@ namespace SevenZip
             }
 
             _disposed = true;
-            GC.SuppressFinalize(this);
         }
 
         #endregion

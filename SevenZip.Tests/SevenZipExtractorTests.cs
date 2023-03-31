@@ -120,6 +120,25 @@
         }
 
         [Test]
+        public void ExtractionFromStream_LeaveStreamOpenTest()
+        {
+            using var fileStream = new FileStream(@"TestData\multiple_files.7z", FileMode.Open);
+            using var extractor1 = new SevenZipExtractor(fileStream, leaveOpen: true);
+
+            extractor1.ExtractArchive(OutputDirectory);
+
+            Assert.IsTrue(fileStream.CanRead);
+
+            extractor1.Dispose();
+
+            using var extractor2 = new SevenZipExtractor(fileStream, leaveOpen: false);
+
+            extractor2.ExtractArchive(OutputDirectory);
+
+            Assert.IsFalse(fileStream.CanRead);
+        }
+
+        [Test]
         public void ExtractionToStreamTest()
         {
             using (var tmp = new SevenZipExtractor(@"TestData\multiple_files.7z"))
