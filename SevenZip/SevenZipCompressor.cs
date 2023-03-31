@@ -1372,7 +1372,11 @@ namespace SevenZip
             if (PreserveDirectoryRoot)
             {
                 var upperRoot = Path.GetDirectoryName(directory);
-                commonRootLength = upperRoot.Length + (upperRoot.EndsWith("\\", StringComparison.OrdinalIgnoreCase) ? 0 : 1);
+
+                if (upperRoot != null)
+                {
+                    commonRootLength = upperRoot.Length + (upperRoot.EndsWith("\\", StringComparison.OrdinalIgnoreCase) ? 0 : 1);
+                }
             }
 
             _directoryCompress = true;

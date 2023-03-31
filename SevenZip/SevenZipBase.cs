@@ -14,7 +14,7 @@ namespace SevenZip
     public abstract class SevenZipBase : MarshalByRefObject
     {
         private readonly bool _reportErrors;
-        private readonly int _uniqueID;
+        private readonly int _uniqueId;
         private static int _incrementingUniqueId = int.MinValue;
 
         /// <summary>
@@ -94,7 +94,7 @@ namespace SevenZip
         /// <summary>
         /// Gets the unique identifier of this SevenZipBase instance.
         /// </summary>
-        public int UniqueID => _uniqueID;
+        public int UniqueID => _uniqueId;
 
         /// <summary>
         /// User exceptions thrown during the requested operations, for example, in events.
@@ -115,7 +115,7 @@ namespace SevenZip
         {
             Password = password;
             _reportErrors = true;
-            _uniqueID = GetUniqueID();
+            _uniqueId = GetUniqueID();
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace SevenZip
                 return false;
             }
 
-            return _uniqueID == instance._uniqueID;
+            return _uniqueId == instance._uniqueId;
         }
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace SevenZip
         /// <returns> A hash code for the current SevenZipBase.</returns>
         public override int GetHashCode()
         {
-            return _uniqueID;
+            return _uniqueId;
         }
 
         /// <summary>
@@ -287,7 +287,7 @@ namespace SevenZip
                 type = "SevenZipCompressor";
             }
 
-            return $"{type} [{_uniqueID}]";
+            return $"{type} [{_uniqueId}]";
         }
     }
 }

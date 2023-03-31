@@ -574,7 +574,7 @@ namespace SevenZip
 
                             for (uint i = 0; i < numProps; i++)
                             {
-                                _archive.GetArchivePropertyInfo(i, out var propName, out var propId, out var varType);
+                                _archive.GetArchivePropertyInfo(i, out _, out var propId, out _);
                                 _archive.GetArchiveProperty(propId, ref data);
 
                                 if (propId == ItemPropId.Solid)
@@ -1014,8 +1014,12 @@ namespace SevenZip
             finally
             {
                 _archive?.Close();
-                if (_archiveStream is IDisposable)
-                    ((IDisposable)_archiveStream).Dispose();
+
+                if (_archiveStream is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+
                 _archiveStream = null;
                 _opened = false;
             }
@@ -1168,14 +1172,14 @@ namespace SevenZip
 
             #region Indexes stuff
 
-            var uindexes = new uint[indexes.Length];
+            var uIndexes = new uint[indexes.Length];
 
             for (var i = 0; i < indexes.Length; i++)
             {
-                uindexes[i] = (uint)indexes[i];
+                uIndexes[i] = (uint)indexes[i];
             }
 
-            if (uindexes.Where(i => i >= _filesCount).Any(
+            if (uIndexes.Where(i => i >= _filesCount).Any(
                 i => !ThrowException(null,
                                      new ArgumentOutOfRangeException(nameof(indexes),
                                                                     $"Index must be less than {_filesCount.Value.ToString(CultureInfo.InvariantCulture)}!"))))
@@ -1183,13 +1187,13 @@ namespace SevenZip
                 return;
             }
 
-            var origIndexes = new List<uint>(uindexes);
+            var origIndexes = new List<uint>(uIndexes);
             origIndexes.Sort();
-            uindexes = origIndexes.ToArray();
+            uIndexes = origIndexes.ToArray();
 
             if (_isSolid.Value)
             {
-                uindexes = SolidIndexes(uindexes);
+                uIndexes = SolidIndexes(uIndexes);
             }
 
             #endregion
@@ -1214,7 +1218,7 @@ namespace SevenZip
                             try
                             {
                                 CheckedExecute(
-                                    _archive.Extract(uindexes, (uint)uindexes.Length, 0, aec),
+                                    _archive.Extract(uIndexes, (uint)uIndexes.Length, 0, aec),
                                     SevenZipExtractionFailedException.DEFAULT_MESSAGE, aec);
                             }
                             finally

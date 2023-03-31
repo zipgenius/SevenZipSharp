@@ -77,11 +77,11 @@
         {
             using var tmp = new SevenZipExtractor(@"TestData\multiple_files.7z");
 
-            tmp.FileExtractionStarted += (s, e) =>
+            tmp.FileExtractionStarted += (_, args) =>
             {
-                if (e.FileInfo.Index == 2)
+                if (args.FileInfo.Index == 2)
                 {
-                    e.Cancel = true;
+                    args.Cancel = true;
                 }
             };
                
@@ -95,11 +95,11 @@
         {
             using var tmp = new SevenZipExtractor(@"TestData\multiple_files.7z");
 
-            tmp.FileExtractionStarted += (s, e) =>
+            tmp.FileExtractionStarted += (_, args) =>
             {
-                if (e.FileInfo.Index == 1)
+                if (args.FileInfo.Index == 1)
                 {
-                    e.Skip = true;
+                    args.Skip = true;
                 }
             };
 
@@ -178,17 +178,13 @@
 
 			var t1 = new Thread(() =>
             {
-                using (var tmp = new SevenZipExtractor(@"TestData\multiple_files.7z"))
-                {
-                    tmp.ExtractArchive(destination1);
-                }
+                using var tmp = new SevenZipExtractor(@"TestData\multiple_files.7z");
+                tmp.ExtractArchive(destination1);
             });
             var t2 = new Thread(() =>
             {
-				using (var tmp = new SevenZipExtractor(@"TestData\multiple_files.7z"))
-				{
-                    tmp.ExtractArchive(destination2);
-                }
+                using var tmp = new SevenZipExtractor(@"TestData\multiple_files.7z");
+                tmp.ExtractArchive(destination2);
             });
 
             t1.Start();
