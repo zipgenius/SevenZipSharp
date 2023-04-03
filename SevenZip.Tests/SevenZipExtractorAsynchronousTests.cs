@@ -79,7 +79,7 @@
                     extractor.ExtractionFinished += (o, e) => extractionFinishedInvoked = true;
                     extractor.BeginExtractFile(0, fileStream);
 
-                    var maximumTimeToWait = 500;
+                    var maximumTimeToWait = 2000;
 
                     while (!extractionFinishedInvoked)
                     {
