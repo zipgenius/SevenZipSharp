@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net472</TargetFrameworks>
     <AssemblyTitle>SevenZip.Tests</AssemblyTitle>
     <Product>SevenZipTests</Product>
     <Copyright>Copyright © Joel Ahlgren 2023</Copyright>

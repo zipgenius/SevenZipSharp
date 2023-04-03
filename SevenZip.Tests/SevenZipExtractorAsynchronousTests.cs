@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using NUnit.Framework;
 
-    [TestFixture, Ignore("Flaky tests, need to be re-written to run consistently in AppVeyor.")]
+    [TestFixture]
     public class SevenZipExtractorAsynchronousTests : TestBase
     {
         [Test]
@@ -29,7 +29,7 @@
 
                 extractor.BeginExtractArchive(OutputDirectory);
 
-                var timeToWait = 1000;
+                var timeToWait = 2000;
                 while (extractionFinishedInvoked == 0)
                 {
                     if (timeToWait <= 0)
