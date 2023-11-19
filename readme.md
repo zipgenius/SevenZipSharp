@@ -1,5 +1,5 @@
-This is a fork from [squid-box's fork](), which is a fork from [tomap's fork](https://github.com/tomap/SevenZipSharp) of the [original CodePlex project](https://archive.codeplex.com/?p=sevenzipsharp).
-## The ZipGenius Team changes
+This is a fork from [squid-box's fork](https://github.com/squid-box/SevenZipSharp), which is a fork from [tomap's fork](https://github.com/tomap/SevenZipSharp) of the [original CodePlex project](https://archive.codeplex.com/?p=sevenzipsharp).
+## The ZipGenius Team changes.
 Original SevenZipSharp from squid-box was not able to show **PackedSize** property for any *ArchiveFileInfo* entry because 7-zip algorithm stores file info in a different way than other compression algorithms: it uses some kind of solid block compression which is truly efficient but it just preserve the original file size info, not the compressed one. This means that some file won't have this info and you won't get any info about compression ratio (which is somewhat useful in particular circumstances).
 If you look better, **WinRAR** shows "0" when it opens a .7z archive that holds any file without compressed size info; moreover, **7-zip file manager** also does this, so it is really useful to have one more property that could report a "0" instead of not having it at all.
 
