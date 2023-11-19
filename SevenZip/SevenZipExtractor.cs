@@ -532,7 +532,7 @@ namespace SevenZip
                                 {
                                     var fileInfo = new ArchiveFileInfo { Index = (int)i };
                                     _archive.GetProperty(i, ItemPropId.Path, ref data);
-                                    fileInfo.FileName = NativeMethods.SafeCast(data, "[no name]");
+                                    fileInfo.FileName = NativeMethods.SafeCast(data, "???");
                                     _archive.GetProperty(i, ItemPropId.LastWriteTime, ref data);
                                     fileInfo.LastWriteTime = NativeMethods.SafeCast(data, DateTime.Now);
                                     _archive.GetProperty(i, ItemPropId.CreationTime, ref data);
@@ -545,6 +545,14 @@ namespace SevenZip
                                     {
                                         fileInfo.Size = NativeMethods.SafeCast<uint>(data, 0);
                                     }
+                                    // Code added by Matteo Riso
+                                    _archive.GetProperty(i, ItemPropId.PackedSize, ref data);
+                                    fileInfo.PackedSize = NativeMethods.SafeCast<ulong>(data, 0);
+                                    if (fileInfo.PackedSize == 0)
+                                    {
+                                        fileInfo.PackedSize = NativeMethods.SafeCast<uint>(data, 0);
+                                    }
+                                    // END Code by M.R.
                                     _archive.GetProperty(i, ItemPropId.Attributes, ref data);
                                     fileInfo.Attributes = NativeMethods.SafeCast<uint>(data, 0);
                                     _archive.GetProperty(i, ItemPropId.IsDirectory, ref data);

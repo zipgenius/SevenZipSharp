@@ -1,4 +1,14 @@
-This is a fork from [tomap's fork](https://github.com/tomap/SevenZipSharp) of the [original CodePlex project](https://archive.codeplex.com/?p=sevenzipsharp).
+This is a fork from [squid-box's fork](), which is a fork from [tomap's fork](https://github.com/tomap/SevenZipSharp) of the [original CodePlex project](https://archive.codeplex.com/?p=sevenzipsharp).
+## The ZipGenius Team changes
+Original SevenZipSharp from squid-box was not able to show **PackedSize** property for any *ArchiveFileInfo* entry because 7-zip algorithm stores file info in a different way than other compression algorithms: it uses some kind of solid block compression which is truly efficient but it just preserve the original file size info, not the compressed one. This means that some file won't have this info and you won't get any info about compression ratio (which is somewhat useful in particular circumstances).
+If you look better, **WinRAR** shows "0" when it opens a .7z archive that holds any file without compressed size info; moreover, **7-zip file manager** also does this, so it is really useful to have one more property that could report a "0" instead of not having it at all.
+
+So these are the changes we made:
+* Target .NET version now includes .NET 6.0, .NET 7.0 and .NET 8.0.
+* **PackedSize** property enabled in **ArchiveFileInfo** entries; when a file has no compressed size info, the default value is "0".
+* Replaced the string "**[no name]**" with "**???**" when the code is not able to read a file/folder name.
+
+Below is the original **readme.md**.
 
 ## Continuous Integration
 

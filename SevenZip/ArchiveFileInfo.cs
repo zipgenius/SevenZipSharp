@@ -43,6 +43,12 @@ namespace SevenZip
         public ulong Size { get; set; }
 
         /// <summary>
+        /// Gets or sets size of the file (packed).
+        /// </summary>
+        [CLSCompliant(false)]
+        public ulong PackedSize { get; set; }
+
+        /// <summary>
         /// Gets or sets CRC checksum of the file.
         /// </summary>
         [CLSCompliant(false)]
