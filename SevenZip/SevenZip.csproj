@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>SevenZipSharp</AssemblyName>
-    <TargetFrameworks>netstandard2.0;net472;netcoreapp3.1;net60;net70;net80</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net60;net70;net80</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>SevenZip.snk</AssemblyOriginatorKeyFile>
     <AssemblyTitle>SevenZipSharp</AssemblyTitle>
